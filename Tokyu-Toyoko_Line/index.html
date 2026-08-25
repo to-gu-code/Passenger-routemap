@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>東急東横線 乗降客数路線図 (2024年度)</title>
+<style>
+  /* ==========================================
+     全体の基本レイアウト
+  ========================================== */
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+  }
+  h2 {
+    margin: 15px 20px;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .scroll-wrapper {
+    flex-grow: 1;
+    overflow: auto;
+    background: #fff;
+    padding: 0 20px 20px 20px;
+  }
+  .container {
+    display: flex;
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  #tooltip {
+    position: absolute; background: rgba(0, 0, 0, 0.85); color: #fff;
+    padding: 10px 15px; border-radius: 4px; font-size: 13px;
+    pointer-events: none; opacity: 0; transition: opacity 0.2s;
+    z-index: 1000; white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+  .grid-bg {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0; pointer-events: none;
+  }
+  .graph-area { position: relative; }
+  .bar { position: relative; z-index: 1; }
+
+  /* ==========================================
+     PC表示（横並び）
+  ========================================== */
+  @media (min-width: 768px) {
+    .container {
+      flex-direction: row;
+      align-items: stretch;
+      min-width: 950px;
+    }
+    
+    .label-block {
+      display: flex; flex-direction: column; width: 70px; flex-shrink: 0;
+    }
+    .graph-area-labels {
+      flex-grow: 1;
+      position: relative; margin-bottom: 15px;
+      border-right: 1px solid #999;
+    }
+    .graph-label {
+      position: absolute; bottom: var(--pos); right: 8px;
+      transform: translateY(50%); font-size: 11px; color: #888;
+      white-space: nowrap; /* 文字崩れ防止 */
+    }
+    .station-name-spacer { height: 80px; margin-bottom: 15px; }
+    .line-map-labels { display: flex; flex-direction: column; }
+    .line-label {
+      height: 30px; display: flex; align-items: center; justify-content: flex-end;
+      padding-right: 15px; font-size: 11px; font-weight: bold;
+    }
+
+    .station-block {
+      display: flex; flex-direction: column; align-items: center;
+      flex: 1;
+      min-width: 40px;
+    }
+    .graph-area {
+      flex-grow: 1; 
+      display: flex; align-items: flex-end; justify-content: center;
+      margin-bottom: 15px; width: 100%;
+      border-bottom: 1px solid #999;
+    }
+    .grid-line {
+      position: absolute; left: 0; right: 0; bottom: var(--pos);
+      border-bottom: 1px dashed #eaeaea;
+    }
+    .bar {
+      width: 24px; border-radius: 4px 4px 0 0;
+      transition: height 0.3s, opacity 0.2s; cursor: pointer;
+    }
+    .bar:hover { opacity: 0.7; }
+    .station-name {
+      writing-mode: vertical-rl; font-size: 13px; font-weight: bold;
+      margin-bottom: 15px; height: 80px; text-align: left;
+    }
+    .line-map-area { display: flex; flex-direction: column; width: 100%; }
+    .track {
+      height: 30px; width: 100%; position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .track::before {
+      content: ""; position: absolute; width: 100%; height: 8px;
+      background-color: var(--line-color); z-index: 1;
+    }
+  }
+
+  /* ==========================================
+     スマホ表示（縦並び・左右入れ替え対応）
+  ========================================== */
+  @media (max-width: 767px) {
+    .container { flex-direction: column; }
+    
+    .label-block {
+      display: flex; flex-direction: row; width: 100%; height: 80px;
+      margin-bottom: 5px; flex-shrink: 0;
+    }
+    /* スマホ時のラベル並び順を order で変更 */
+    .line-map-labels { order: 1; display: flex; flex-direction: row; margin-right: 15px; }
+    .station-name-spacer { order: 2; width: 70px; flex-shrink: 0; }
+    .graph-area-labels {
+      order: 3; flex-grow: 1; position: relative;
+      border-bottom: 1px solid #999;
+    }
+    
+    .line-label {
+      width: 25px; writing-mode: vertical-rl;
+      display: flex; align-items: center; justify-content: flex-end;
+      padding-bottom: 8px; font-size: 11px; font-weight: bold;
+    }
+    
+    .graph-label {
+      position: absolute; left: var(--pos); bottom: 5px;
+      transform: translateX(-50%); font-size: 11px; color: #888;
+      white-space: nowrap; /* ★文字崩れ防止（40万などを1行に保つ） */
+    }
+
+    .station-block {
+      display: flex; flex-direction: row; align-items: center;
+      height: 55px; width: 100%;
+    }
+    /* スマホ時の各ブロックの並び順を order で変更（左から 路線図→駅名→グラフ） */
+    .line-map-area { order: 1; display: flex; flex-direction: row; height: 100%; margin-right: 15px; }
+    .station-name { order: 2; font-size: 13px; font-weight: bold; width: 70px; flex-shrink: 0; }
+    .graph-area {
+      order: 3; flex-grow: 1; display: flex; align-items: center; height: 100%;
+      border-left: 1px solid #999;
+    }
+    
+    .track {
+      width: 25px; height: 100%; position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .track::before {
+      content: ""; position: absolute; height: 100%; width: 8px;
+      background-color: var(--line-color); z-index: 1;
+    }
+    .grid-line {
+      position: absolute; top: 0; bottom: 0; left: var(--pos);
+      border-left: 1px dashed #eaeaea;
+    }
+    .bar {
+      height: 18px; border-radius: 0 4px 4px 0;
+      transition: width 0.3s, opacity 0.2s; cursor: pointer;
+    }
+    .bar:hover { opacity: 0.7; }
+  }
+
+  .node {
+    width: 14px; height: 14px; background-color: #fff;
+    border: 3px solid var(--line-color); border-radius: 50%; z-index: 2;
+  }
+  .pass { visibility: hidden; }
+</style>
+</head>
+<body>
+
+<h2 id="map-title">読み込み中...</h2>
+<div class="scroll-wrapper">
+  <div class="container" id="map-container"></div>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+  const transitConfig = {
+    title: "東急東横線 乗降客数路線図 (2024年度)",
+    maxPassengers: 430000, 
+    barColor: "#dc143c",   
+    trainTypes: [
+      { id: "local", name: "各駅停車", color: "#333333" },
+      { id: "express", name: "急行", color: "#e60012" },
+      { id: "commuter", name: "通勤特急", color: "#f39800" },
+      { id: "limited", name: "特急", color: "#ff8c00" }
+    ],
+    stations: [
+      { name: "渋谷", passengers: 425889, stops: ["local", "express", "commuter", "limited"] },
+      { name: "代官山", passengers: 29162, stops: ["local"] },
+      { name: "中目黒", passengers: 185355, stops: ["local", "express", "commuter", "limited"] },
+      { name: "祐天寺", passengers: 30750, stops: ["local"] },
+      { name: "学芸大学", passengers: 74907, stops: ["local", "express"] },
+      { name: "都立大学", passengers: 46628, stops: ["local"] },
+      { name: "自由が丘", passengers: 88187, stops: ["local", "express", "commuter", "limited"] },
+      { name: "田園調布", passengers: 19041, stops: ["local", "express", "commuter"] },
+      { name: "多摩川", passengers: 14437, stops: ["local", "express", "commuter"] },
+      { name: "新丸子", passengers: 19161, stops: ["local"] },
+      { name: "武蔵小杉", passengers: 158089, stops: ["local", "express", "commuter", "limited"] },
+      { name: "元住吉", passengers: 41513, stops: ["local"] },
+      { name: "日吉", passengers: 133051, stops: ["local", "express", "commuter"] },
+      { name: "綱島", passengers: 81645, stops: ["local", "express"] },
+      { name: "大倉山", passengers: 50873, stops: ["local"] },
+      { name: "菊名", passengers: 96047, stops: ["local", "express", "commuter", "limited"] },
+      { name: "妙蓮寺", passengers: 25804, stops: ["local"] },
+      { name: "白楽", passengers: 43808, stops: ["local"] },
+      { name: "東白楽", passengers: 16169, stops: ["local"] },
+      { name: "反町", passengers: 13520, stops: ["local"] },
+      { name: "横浜", passengers: 317780, stops: ["local", "express", "commuter", "limited"] }
+    ]
+  };
+
+  document.getElementById('map-title').textContent = transitConfig.title;
+  const container = document.getElementById('map-container');
+  const tooltip = document.getElementById('tooltip');
+  const maxP = transitConfig.maxPassengers;
+
+  const gridValues = [];
+  for (let i = 100000; i <= maxP; i += 100000) { gridValues.push(i); }
+
+  let stationGridHtml = '<div class="grid-bg">';
+  gridValues.forEach(val => {
+    const pos = (val / maxP) * 100;
+    stationGridHtml += `<div class="grid-line" style="--pos: ${pos}%;"></div>`;
+  });
+  stationGridHtml += '</div>';
+
+  let graphLabelsHtml = `<div class="graph-label" style="--pos: 0%;">0</div>`;
+  gridValues.forEach(val => {
+    const pos = (val / maxP) * 100;
+    graphLabelsHtml += `<div class="graph-label" style="--pos: ${pos}%;">${val / 10000}万</div>`;
+  });
+  let lineLabelsHtml = '';
+  transitConfig.trainTypes.forEach(type => {
+    lineLabelsHtml += `<div class="line-label" style="color: ${type.color};">${type.name}</div>`;
+  });
+
+  let html = `
+    <div class="label-block">
+      <div class="graph-area-labels">${graphLabelsHtml}</div>
+      <div class="station-name-spacer"></div>
+      <div class="line-map-labels">${lineLabelsHtml}</div>
+    </div>
+  `;
+
+  transitConfig.stations.forEach((station, index) => {
+    const barSize = (station.passengers / maxP) * 100;
+
+    let tracksHtml = '';
+    transitConfig.trainTypes.forEach(type => {
+      const isStop = station.stops.includes(type.id);
+      tracksHtml += `
+        <div class="track" style="--line-color: ${type.color};">
+          <div class="node ${isStop ? '' : 'pass'}"></div>
+        </div>
+      `;
+    });
+
+    html += `
+      <div class="station-block">
+        <div class="graph-area">
+          ${stationGridHtml}
+          <style>
+            #bar-${index} { --val: ${barSize}%; background-color: ${transitConfig.barColor}; }
+            @media (min-width: 768px) { #bar-${index} { height: var(--val); } }
+            @media (max-width: 767px) { #bar-${index} { width: var(--val); } }
+          </style>
+          <div class="bar" id="bar-${index}" data-name="${station.name}" data-pass="${station.passengers}"></div>
+        </div>
+        <div class="station-name">${station.name}</div>
+        <div class="line-map-area">
+          ${tracksHtml}
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  document.querySelectorAll('.bar').forEach(bar => {
+    bar.addEventListener('mouseover', (e) => {
+      const name = bar.getAttribute('data-name');
+      const pass = parseInt(bar.getAttribute('data-pass')).toLocaleString();
+      tooltip.innerHTML = `<strong>${name}駅</strong><br>乗降客数: ${pass}人`;
+      tooltip.style.opacity = 1;
+    });
+    bar.addEventListener('mousemove', (e) => {
+      tooltip.style.left = (e.pageX + 15) + 'px';
+      tooltip.style.top = (e.pageY + 15) + 'px';
+    });
+    bar.addEventListener('mouseout', () => {
+      tooltip.style.opacity = 0;
+    });
+  });
+</script>
+
+</body>
+</html>
