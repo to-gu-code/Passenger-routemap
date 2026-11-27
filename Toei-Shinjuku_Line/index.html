@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>都営新宿線｜乗降客数路線図</title>
+<style>
+  /* ==========================================
+     全体の基本レイアウト
+  ========================================== */
+  :root {
+    --line-shinjuku: #6CBB5A;
+    --line-shinjuku-dark: #2E7D32;
+    --bar-board: #2E8B57;
+    --bar-alight: #7CCD7C;
+    --express-color: #E60012;
+    --local-color: #333333;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    background-color: #f5f7f6;
+    color: #222;
+  }
+
+  .header-area {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 20px;
+    background: #fff;
+    border-bottom: 2px solid var(--line-shinjuku);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .line-symbol-main {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 4px solid var(--line-shinjuku);
+    background: #fff;
+    color: #111;
+    font-weight: 900;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    color: #1a1a1a;
+  }
+
+  .legend-inline {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 12px;
+    color: #555;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  /* ボタン群のレイアウト */
+  .controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .toggle-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .toggle-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    background: #f4f4f4;
+    color: #333;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .toggle-btn:hover {
+    background: #e6ebe7;
+  }
+
+  .toggle-btn.active {
+    background: var(--line-shinjuku-dark);
+    color: #fff;
+    border-color: var(--line-shinjuku-dark);
+  }
+
+  .period-badge {
+    font-size: 12px;
+    font-weight: bold;
+    color: #2E7D32;
+    background: #eaf6ec;
+    border: 1px solid #b7e1be;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+
+  /* グラフのスクロールエリア */
+  .scroll-wrapper {
+    overflow-x: auto;
+    background: #fff;
+    padding: 20px;
+    margin: 18px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+
+  .container {
+    display: flex;
+    min-width: 1320px;
+  }
+
+  /* 駅ナンバリングバッジ共通 */
+  .st-num-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 4px;
+    border: 2px solid var(--line-shinjuku);
+    background: #fff;
+    color: #111;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+  }
+
+  /* 乗り換え路線ナンバリングバッジ */
+  .tr-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9.5px;
+    font-weight: 800;
+    line-height: 1.1;
+    padding: 2px 4px;
+    border-radius: 3px;
+    border: 1.5px solid var(--tr-color, #555);
+    background: #fff;
+    color: #111;
+    white-space: nowrap;
+    letter-spacing: -0.3px;
+  }
+
+  .tr-pill.filled {
+    background: var(--tr-color, #555);
+    color: #fff;
+    border-color: var(--tr-color, #555);
+  }
+
+  .tr-more-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9.5px;
+    font-weight: bold;
+    line-height: 1.1;
+    padding: 2px 5px;
+    border-radius: 3px;
+    background: #eef2f6;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    white-space: nowrap;
+  }
+
+  /* ツールチップ（マウスホバー） */
+  #tooltip {
+    position: absolute;
+    background: rgba(20, 25, 22, 0.92);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 1000;
+    white-space: nowrap;
+    line-height: 1.5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  }
+
+  /* モーダル（乗り換えポップアップ） */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding: 16px;
+  }
+
+  .modal-overlay.show {
+    display: flex;
+    opacity: 1;
+  }
+
+  .modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+    position: relative;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px 0;
+    border-bottom: 2px solid var(--line-shinjuku);
+    padding-bottom: 10px;
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .modal-transfer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 18px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-transfer-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    background: #f8faf9;
+    border-radius: 6px;
+    border: 1px solid #e5ebe7;
+    font-size: 13.5px;
+  }
+
+  .modal-line-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .modal-tr-code {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 46px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    border: 2px solid var(--tr-color, #555);
+    background: #fff;
+    color: #111;
+  }
+
+  .modal-note {
+    font-size: 11px;
+    color: #666;
+    background: #eee;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .close-btn {
+    width: 100%;
+    padding: 10px;
+    background: #edf2ee;
+    color: #222;
+    border: 1px solid #d2ddd4;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    transition: background 0.15s;
+  }
+
+  .close-btn:hover {
+    background: #dfe8e1;
+  }
+
+  /* グラフ背景グリッド */
+  .grid-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .graph-area {
+    position: relative;
+  }
+
+  /* 棒グラフのセグメント設定 */
+  .bar-container {
+    display: flex;
+    transition: all 0.3s;
+  }
+
+  .bar-segment {
+    position: relative;
+    z-index: 1;
+    transition: flex-basis 0.35s ease-out, opacity 0.2s;
+    cursor: pointer;
+  }
+
+  .bar-segment:hover {
+    opacity: 0.78;
+  }
+
+  /* ==========================================
+     PC表示（横並び：768px以上）
+  ========================================== */
+  @media (min-width: 768px) {
+    .container {
+      flex-direction: row;
+      align-items: stretch;
+      height: 560px;
+    }
+
+    .label-block {
+      display: flex;
+      flex-direction: column;
+      width: 76px;
+      flex-shrink: 0;
+    }
+
+    .graph-area-labels {
+      flex-grow: 1;
+      position: relative;
+      margin-bottom: 12px;
+      border-right: 1px solid #888;
+    }
+
+    .graph-label {
+      position: absolute;
+      bottom: var(--pos);
+      right: 8px;
+      transform: translateY(50%);
+      font-size: 11px;
+      color: #666;
+      white-space: nowrap;
+    }
+
+    .station-name-spacer {
+      height: 192px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-end;
+      padding-right: 10px;
+      padding-bottom: 6px;
+      font-size: 10.5px;
+      color: #777;
+      font-weight: bold;
+    }
+
+    .line-map-labels {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .line-label {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .station-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 58px;
+    }
+
+    .graph-area {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 12px;
+      width: 100%;
+      border-bottom: 1px solid #888;
+    }
+
+    .grid-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: var(--pos);
+      border-bottom: 1px dashed #e6e9e7;
+    }
+
+    /* PCの積み上げ棒（縦方向） */
+    .bar-container {
+      width: 24px;
+      flex-direction: column;
+      justify-content: flex-end;
+      height: 100%;
+    }
+
+    .bar-alight {
+      flex-basis: var(--alight-size);
+      width: 100%;
+      border-radius: 2px 2px 0 0;
+    }
+
+    .bar-board {
+      flex-basis: var(--board-size);
+      width: 100%;
+    }
+
+    /* 駅ナンバリング・駅名・乗り換えバッジのコンテナ */
+    .station-name-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 192px;
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 0 2px;
+    }
+
+    .station-name-container .st-num-badge {
+      margin-bottom: 5px;
+    }
+
+    .station-name {
+      writing-mode: vertical-rl;
+      font-size: 13px;
+      font-weight: bold;
+      height: 82px;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+      color: #111;
+    }
+
+    .transfer-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 3px 2px;
+      border-radius: 5px;
+      transition: background-color 0.15s;
+      width: 100%;
+    }
+
+    .transfer-area:hover {
+      background-color: #eef5f0;
+    }
+
+    .line-map-area {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .track {
+      height: 32px;
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .track::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 8px;
+      background-color: var(--line-color);
+      z-index: 1;
+    }
+  }
+
+  /* ==========================================
+     スマホ・狭幅表示（縦並び：767px以下）
+  ========================================== */
+  @media (max-width: 767px) {
+    .scroll-wrapper {
+      padding: 12px 10px;
+      margin: 10px;
+      overflow-x: visible;
+    }
+
+    .container {
+      flex-direction: column;
+      min-width: auto;
+    }
+
+    .label-block {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      height: 76px;
+      margin-bottom: 4px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 108px;
+      background: #fff;
+      z-index: 20;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .line-map-labels {
+      order: 1;
+      display: flex;
+      flex-direction: row;
+      margin-right: 8px;
+    }
+
+    .station-name-spacer {
+      order: 2;
+      width: 138px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #666;
+    }
+
+    .graph-area-labels {
+      order: 3;
+      flex-grow: 1;
+      position: relative;
+      border-bottom: 1px solid #888;
+    }
+
+    .line-label {
+      width: 26px;
+      writing-mode: vertical-rl;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 6px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .graph-label {
+      position: absolute;
+      left: var(--pos);
+      bottom: 5px;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: #666;
+      white-space: nowrap;
+    }
+
+    .station-block {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      min-height: 62px;
+      width: 100%;
+      border-bottom: 1px solid #f2f4f3;
+    }
+
+    .line-map-area {
+      order: 1;
+      display: flex;
+      flex-direction: row;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .station-name-container {
+      order: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      width: 138px;
+      flex-shrink: 0;
+      padding: 6px 4px 6px 0;
+      gap: 4px;
+    }
+
+    .station-title-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .station-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #111;
+    }
+
+    .transfer-area {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+    }
+
+    .graph-area {
+      order: 3;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      border-left: 1px solid #888;
+    }
+
+    .grid-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: var(--pos);
+      border-left: 1px dashed #e6e9e7;
+    }
+
+    /* スマホの積み上げ棒（横方向） */
+    .bar-container {
+      height: 20px;
+      flex-direction: row;
+      width: 100%;
+    }
+
+    .bar-board {
+      flex-basis: var(--board-size);
+      height: 100%;
+    }
+
+    .bar-alight {
+      flex-basis: var(--alight-size);
+      height: 100%;
+      border-radius: 0 2px 2px 0;
+    }
+
+    .track {
+      width: 26px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .track::before {
+      content: "";
+      position: absolute;
+      height: 100%;
+      width: 8px;
+      background-color: var(--line-color);
+      z-index: 1;
+    }
+  }
+
+  .node {
+    width: 15px;
+    height: 15px;
+    background-color: #fff;
+    border: 3.5px solid var(--line-color);
+    border-radius: 50%;
+    z-index: 2;
+    box-shadow: 0 0 0 1.5px #fff;
+  }
+
+  .pass {
+    visibility: hidden;
+  }
+
+  .source-footer {
+    padding: 10px 20px 24px;
+    font-size: 11.5px;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  .source-footer a {
+    color: #2E7D32;
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<div class="header-area">
+  <div class="header-top">
+    <div class="title-wrap">
+      <span class="line-symbol-main">S</span>
+      <h2 id="map-title">都営新宿線 乗降客数路線図（2025年4月〜2026年3月）</h2>
+    </div>
+    <div class="legend-inline">
+      <span class="legend-item"><span class="legend-swatch" style="background: var(--bar-board);"></span>乗車人員</span>
+      <span class="legend-item"><span class="legend-swatch" style="background: var(--bar-alight);"></span>降車人員</span>
+    </div>
+  </div>
+  <div class="controls-row">
+    <div class="period-badge">集計期間：2025年4月〜2026年3月（一日平均）</div>
+    <!-- グラフ表示モード切り替え -->
+    <div class="toggle-group" id="mode-toggles">
+      <button class="toggle-btn mode-btn active" onclick="switchMode(event, 'total')">乗降合算(積み上げ)</button>
+      <button class="toggle-btn mode-btn" onclick="switchMode(event, 'board')">乗車人員のみ</button>
+      <button class="toggle-btn mode-btn" onclick="switchMode(event, 'alight')">降車人員のみ</button>
+    </div>
+  </div>
+</div>
+
+<div class="scroll-wrapper">
+  <div class="container" id="map-container"></div>
+</div>
+
+<div class="source-footer">
+  出典: <a href="https://www.kotsu.metro.tokyo.jp/subway/kanren/passengers.html#c" target="_blank" rel="noopener noreferrer">東京都交通局「各駅乗降人員一覧（新宿線 2025年4月～2026年3月）」</a><br>
+  ※乗換バッジをクリック（タップ）すると、接続路線および駅ナンバリングの一覧を表示します。
+</div>
+
+<!-- ツールチップ -->
+<div id="tooltip"></div>
+
+<!-- 乗り換えポップアップ（モーダル） -->
+<div id="transfer-modal" class="modal-overlay" onclick="closePopup()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span id="modal-station-code" class="st-num-badge"></span>
+      <h3 id="modal-station-name"></h3>
+    </div>
+    <ul id="modal-transfer-list" class="modal-transfer-list"></ul>
+    <button class="close-btn" onclick="closePopup()">閉じる</button>
+  </div>
+</div>
+
+<script>
+  // 状態管理
+  let currentMode = 'total'; // 'total', 'board', 'alight'
+
+  // 乗り換え路線データ（駅ナンバリング・ラインカラー付き）
+  const transferMeta = {
+    "新宿": [
+      { code: "KO-01", line: "京王線・京王新線", color: "#DD0077", note: "直通運転" },
+      { code: "OH-01", line: "小田急小田原線", color: "#2288CC" },
+      { code: "M-08", line: "東京メトロ丸ノ内線", color: "#F62E36" },
+      { code: "E-27", line: "都営大江戸線", color: "#B6007A", note: "新宿西口: E-01" },
+      { code: "JY-17", line: "JR山手線", color: "#9ACD32" },
+      { code: "JC-05", line: "JR中央線（快速）", color: "#F15A22" },
+      { code: "JB-10", line: "JR中央・総武線（各駅停車）", color: "#E5B800" },
+      { code: "JA-11", line: "JR埼京線", color: "#00AC9A" },
+      { code: "JS-20", line: "JR湘南新宿ライン", color: "#E21F26" }
+    ],
+    "新宿三丁目": [
+      { code: "M-09", line: "東京メトロ丸ノ内線", color: "#F62E36" },
+      { code: "F-13", line: "東京メトロ副都心線", color: "#9C5E31" }
+    ],
+    "市ケ谷": [
+      { code: "Y-14", line: "東京メトロ有楽町線", color: "#C1A470" },
+      { code: "N-09", line: "東京メトロ南北線", color: "#00AC9B" },
+      { code: "JB-15", line: "JR中央・総武線（各駅停車）", color: "#E5B800" }
+    ],
+    "九段下": [
+      { code: "T-07", line: "東京メトロ東西線", color: "#009BBF" },
+      { code: "Z-06", line: "東京メトロ半蔵門線", color: "#8F76D6" }
+    ],
+    "神保町": [
+      { code: "I-10", line: "都営三田線", color: "#006AB8" },
+      { code: "Z-07", line: "東京メトロ半蔵門線", color: "#8F76D6" }
+    ],
+    "小川町": [
+      { code: "M-19", line: "東京メトロ丸ノ内線", color: "#F62E36", note: "淡路町駅" },
+      { code: "C-12", line: "東京メトロ千代田線", color: "#00BB85", note: "新御茶ノ水駅" }
+    ],
+    "馬喰横山": [
+      { code: "A-15", line: "都営浅草線", color: "#EC6E65", note: "東日本橋駅" },
+      { code: "JO-21", line: "JR総武線快速", color: "#0070B9", note: "馬喰町駅" }
+    ],
+    "森下": [
+      { code: "E-13", line: "都営大江戸線", color: "#B6007A" }
+    ],
+    "住吉": [
+      { code: "Z-12", line: "東京メトロ半蔵門線", color: "#8F76D6" }
+    ],
+    "本八幡": [
+      { code: "JB-28", line: "JR中央・総武線（各駅停車）", color: "#E5B800" },
+      { code: "KS-16", line: "京成本線", color: "#005AAA", note: "京成八幡駅" }
+    ]
+  };
+
+  // 東京都交通局「各駅乗降人員一覧（新宿線 2025年4月～2026年3月）」
+  const lineData = {
+    maxPassengers: 350000,
+    stations: [
+      { code: "S-01", name: "新宿", board: 151735, alight: 149161, stops: ["local", "express"] },
+      { code: "S-02", name: "新宿三丁目", board: 37253, alight: 38900, stops: ["local"] },
+      { code: "S-03", name: "曙橋", board: 18838, alight: 18361, stops: ["local"] },
+      { code: "S-04", name: "市ケ谷", board: 46118, alight: 47426, stops: ["local", "express"] },
+      { code: "S-05", name: "九段下", board: 58305, alight: 58488, stops: ["local", "express"] },
+      { code: "S-06", name: "神保町", board: 63758, alight: 64034, stops: ["local", "express"] },
+      { code: "S-07", name: "小川町", board: 38096, alight: 38547, stops: ["local"] },
+      { code: "S-08", name: "岩本町", board: 27255, alight: 27302, stops: ["local"] },
+      { code: "S-09", name: "馬喰横山", board: 58156, alight: 58179, stops: ["local", "express"] },
+      { code: "S-10", name: "浜町", board: 11150, alight: 11295, stops: ["local"] },
+      { code: "S-11", name: "森下", board: 37640, alight: 38615, stops: ["local", "express"] },
+      { code: "S-12", name: "菊川", board: 12770, alight: 12598, stops: ["local"] },
+      { code: "S-13", name: "住吉", board: 21184, alight: 21113, stops: ["local"] },
+      { code: "S-14", name: "西大島", board: 14268, alight: 14282, stops: ["local"] },
+      { code: "S-15", name: "大島", board: 16301, alight: 15952, stops: ["local", "express"] },
+      { code: "S-16", name: "東大島", board: 15651, alight: 15636, stops: ["local"] },
+      { code: "S-17", name: "船堀", board: 30109, alight: 30015, stops: ["local", "express"] },
+      { code: "S-18", name: "一之江", board: 22319, alight: 21980, stops: ["local"] },
+      { code: "S-19", name: "瑞江", board: 28221, alight: 28245, stops: ["local"] },
+      { code: "S-20", name: "篠崎", board: 20519, alight: 20340, stops: ["local"] },
+      { code: "S-21", name: "本八幡", board: 37695, alight: 36869, stops: ["local", "express"] }
+    ]
+  };
+
+  const trainTypes = [
+    { id: "local", name: "各駅停車", color: "#333333" },
+    { id: "express", name: "急行", color: "#E60012" }
+  ];
+
+  // 乗換バッジ生成（PCは最大3個+残数、スマホは全表示）
+  function buildTransferBadges(station, isMobile) {
+    const transfers = transferMeta[station.name];
+    if (!transfers || transfers.length === 0) return '';
+
+    const maxInline = isMobile ? transfers.length : 3;
+    const visibleList = transfers.slice(0, maxInline);
+    const remainCount = transfers.length - visibleList.length;
+
+    let badgesHtml = visibleList.map(tr =>
+      `<span class="tr-pill" style="--tr-color: ${tr.color};" title="${tr.line}${tr.note ? '（' + tr.note + '）' : ''}">${tr.code}</span>`
+    ).join('');
+
+    if (remainCount > 0) {
+      badgesHtml += `<span class="tr-more-pill" title="他${remainCount}路線（クリックで全表示）">+${remainCount}</span>`;
+    }
+
+    return `<div class="transfer-area" onclick="showTransferPopup('${station.code}', '${station.name}')" title="クリックで乗り換え路線一覧を表示">${badgesHtml}</div>`;
+  }
+
+  // メイン描画処理
+  function renderMap() {
+    const container = document.getElementById('map-container');
+    const maxP = lineData.maxPassengers;
+    const gridValues = [50000, 100000, 150000, 200000, 250000, 300000, 350000];
+    const isMobile = window.innerWidth <= 767;
+
+    // 背景グリッドと目盛りの生成
+    let stationGridHtml = '<div class="grid-bg">';
+    gridValues.forEach(val => {
+      stationGridHtml += `<div class="grid-line" style="--pos: ${(val / maxP) * 100}%;"></div>`;
+    });
+    stationGridHtml += '</div>';
+
+    let graphLabelsHtml = `<div class="graph-label" style="--pos: 0%;">0</div>`;
+    gridValues.forEach(val => {
+      const labelText = (val % 100000 === 0 || !isMobile) ? `${val / 10000}万` : '';
+      if (labelText) {
+        graphLabelsHtml += `<div class="graph-label" style="--pos: ${(val / maxP) * 100}%;">${labelText}</div>`;
+      }
+    });
+
+    let lineLabelsHtml = '';
+    trainTypes.forEach(type => {
+      lineLabelsHtml += `<div class="line-label" style="color: ${type.color};">${type.name}</div>`;
+    });
+
+    let html = `
+      <div class="label-block">
+        <div class="graph-area-labels">${graphLabelsHtml}</div>
+        <div class="station-name-spacer">駅番号・駅名 / 乗換</div>
+        <div class="line-map-labels">${lineLabelsHtml}</div>
+      </div>
+    `;
+
+    // 各駅データの生成
+    lineData.stations.forEach((station) => {
+      const total = station.board + station.alight;
+
+      let boardSize = (station.board / maxP) * 100;
+      let alightSize = (station.alight / maxP) * 100;
+
+      if (currentMode === 'board') alightSize = 0;
+      if (currentMode === 'alight') boardSize = 0;
+
+      // 路線パターンの描画
+      let tracksHtml = '';
+      trainTypes.forEach(type => {
+        const isStop = station.stops.includes(type.id);
+        tracksHtml += `<div class="track" style="--line-color: ${type.color};"><div class="node ${isStop ? '' : 'pass'}"></div></div>`;
+      });
+
+      const transferHtml = buildTransferBadges(station, isMobile);
+
+      const stationHeaderHtml = isMobile
+        ? `<div class="station-title-row">
+             <span class="st-num-badge">${station.code}</span>
+             <span class="station-name">${station.name}</span>
+           </div>
+           ${transferHtml}`
+        : `<span class="st-num-badge">${station.code}</span>
+           <div class="station-name">${station.name}</div>
+           ${transferHtml}`;
+
+      html += `
+        <div class="station-block">
+          <div class="graph-area">
+            ${stationGridHtml}
+            <div class="bar-container" style="--board-size: ${boardSize}%; --alight-size: ${alightSize}%;">
+              <div class="bar-segment bar-alight" style="background-color: var(--bar-alight);"
+                   data-code="${station.code}" data-name="${station.name}" data-total="${total}" data-board="${station.board}" data-alight="${station.alight}"></div>
+              <div class="bar-segment bar-board" style="background-color: var(--bar-board);"
+                   data-code="${station.code}" data-name="${station.name}" data-total="${total}" data-board="${station.board}" data-alight="${station.alight}"></div>
+            </div>
+          </div>
+          <div class="station-name-container">
+            ${stationHeaderHtml}
+          </div>
+          <div class="line-map-area">
+            ${tracksHtml}
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+    initTooltip();
+  }
+
+  // モード切り替え
+  function switchMode(ev, modeStr) {
+    currentMode = modeStr;
+    const btns = document.getElementById('mode-toggles').querySelectorAll('.mode-btn');
+    btns.forEach(b => b.classList.remove('active'));
+    ev.currentTarget.classList.add('active');
+    renderMap();
+  }
+
+  // ツールチップ設定
+  function initTooltip() {
+    const tooltip = document.getElementById('tooltip');
+    document.querySelectorAll('.bar-segment').forEach(seg => {
+      const showTip = (e) => {
+        const code = seg.getAttribute('data-code');
+        const name = seg.getAttribute('data-name');
+        const total = parseInt(seg.getAttribute('data-total')).toLocaleString();
+        const board = parseInt(seg.getAttribute('data-board')).toLocaleString();
+        const alight = parseInt(seg.getAttribute('data-alight')).toLocaleString();
+
+        let html = `<strong>[${code}] ${name}駅</strong><br>`;
+        if (currentMode === 'total' || currentMode === 'alight') {
+          html += `<span style="color:#7CCD7C;">■</span> 降車人員: ${alight}人<br>`;
+        }
+        if (currentMode === 'total' || currentMode === 'board') {
+          html += `<span style="color:#4CAF50;">■</span> 乗車人員: ${board}人<br>`;
+        }
+        if (currentMode === 'total') {
+          html += `<strong>乗降合計: ${total}人</strong>`;
+        }
+        tooltip.innerHTML = html;
+        tooltip.style.opacity = 1;
+        moveTip(e);
+      };
+
+      const moveTip = (e) => {
+        const pageX = e.pageX || (e.touches && e.touches[0].pageX) || 0;
+        const pageY = e.pageY || (e.touches && e.touches[0].pageY) || 0;
+        let x = pageX + 14;
+        let y = pageY + 14;
+        if (x + tooltip.offsetWidth > window.innerWidth - 10) {
+          x = Math.max(10, pageX - tooltip.offsetWidth - 14);
+        }
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      };
+
+      seg.addEventListener('mouseover', showTip);
+      seg.addEventListener('mousemove', moveTip);
+      seg.addEventListener('mouseout', () => {
+        tooltip.style.opacity = 0;
+      });
+      seg.addEventListener('click', showTip);
+    });
+  }
+
+  // 乗り換えポップアップ表示
+  function showTransferPopup(stationCode, stationName) {
+    const transfers = transferMeta[stationName];
+    if (!transfers) return;
+
+    document.getElementById('modal-station-code').textContent = stationCode;
+    document.getElementById('modal-station-name').textContent = stationName + '駅 乗り換え路線';
+    const ul = document.getElementById('modal-transfer-list');
+    ul.innerHTML = transfers.map(tr => `
+      <li class="modal-transfer-item">
+        <div class="modal-line-left">
+          <span class="modal-tr-code" style="--tr-color: ${tr.color};">${tr.code}</span>
+          <span>${tr.line}</span>
+        </div>
+        ${tr.note ? `<span class="modal-note">${tr.note}</span>` : ''}
+      </li>
+    `).join('');
+
+    const modal = document.getElementById('transfer-modal');
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('show'), 10);
+  }
+
+  function closePopup() {
+    const modal = document.getElementById('transfer-modal');
+    modal.classList.remove('show');
+    setTimeout(() => modal.style.display = 'none', 200);
+  }
+
+  // リサイズ時にPC/スマホの駅ヘッダー構造を再描画
+  let lastIsMobile = window.innerWidth <= 767;
+  window.addEventListener('resize', () => {
+    const nowIsMobile = window.innerWidth <= 767;
+    if (nowIsMobile !== lastIsMobile) {
+      lastIsMobile = nowIsMobile;
+      renderMap();
+    }
+  });
+
+  // 初回レンダリング
+  renderMap();
+</script>
+
+</body>
+</html>
