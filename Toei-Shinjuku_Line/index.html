@@ -6,29 +6,28 @@
 <title>都営新宿線 乗降客数路線図｜Toei Shinjuku Line</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Noto+Sans+JP:wght@400;500;700;900&family=Roboto+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&family=Roboto+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <style>
-  /* ==========================================
-     基本設計（直線・グリッド・角丸排除）
-  ========================================== */
+  /* =========================================================
+     基本設計（枠線レス・面分割・カラーユニバーサルデザイン）
+  ========================================================= */
   :root {
-    --bg-canvas: #EBEBEB;
-    --bg-panel: #FFFFFF;
-    --ink-main: #1A1A1A;
-    --ink-sub: #595959;
-    --border-dark: #222222;
-    --border-mid: #999999;
-    --border-light: #DCDCDC;
+    --bg-canvas: #EAEAEA;
+    --bg-sheet: #FFFFFF;
+    --bg-subtle: #F4F4F4;
+    --ink-primary: #181818;
+    --ink-secondary: #5A5A5A;
+    --ink-muted: #808080;
+    --axis-line: #333333;
+    --grid-major: #DCDCDC;
+    --grid-minor: #EFEFEF;
 
-    /* 都営新宿線 ラインカラー＆種別カラー */
-    --line-shinjuku: #6CBB5A;
-    --line-shinjuku-deep: #2E7D32;
-    --type-local: #4A4A4A;
-    --type-express: #E60012;
+    /* 路線固有テーマ（JSからも上書き可能） */
+    --line-theme: #8DC21F;
 
-    /* 棒グラフカラー（乗車・降車） */
-    --bar-board: #2E7D32;
-    --bar-alight: #88CE78;
+    /* カラーユニバーサルデザイン（CUD推奨：低明度ブルー × 高明度アンバー） */
+    --cud-board: #005A9C;
+    --cud-alight: #F5A623;
   }
 
   * {
@@ -41,268 +40,363 @@
     padding: 0;
     font-family: "Noto Sans JP", sans-serif;
     background-color: var(--bg-canvas);
-    color: var(--ink-main);
+    color: var(--ink-primary);
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ==========================================
-     タイトル＆コントロールヘッダー（路線図タイトルブロック風）
-  ========================================== */
-  .header-area {
-    background: var(--bg-panel);
-    border-bottom: 2px solid var(--border-dark);
-    padding: 16px 24px;
+  /* =========================================================
+     ヘッダー＆コントロールバー（ミニマル・鉄道図表スタイル）
+  ========================================================= */
+  .top-header {
+    background: var(--bg-sheet);
+    padding: 18px 28px 16px;
     position: sticky;
     top: 0;
     z-index: 100;
   }
 
-  .header-top {
+  .header-main-row {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 14px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border-light);
+    gap: 16px;
+    margin-bottom: 14px;
   }
 
-  .title-block {
+  .route-title-group {
     display: flex;
-    align-items: stretch;
-    gap: 12px;
+    align-items: center;
+    gap: 14px;
   }
 
-  .title-accent-bar {
-    width: 10px;
-    background-color: var(--line-shinjuku);
+  .route-emblem {
+    width: 38px;
+    height: 38px;
+    border-radius: 50% !important;
+    border: 6px solid var(--line-theme);
+    background: #FFFFFF;
+    color: var(--ink-primary);
+    font-family: "Inter", sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
   }
 
-  .title-texts {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .title-jp {
+  .route-title-texts h1 {
     margin: 0;
     font-size: 1.35rem;
     font-weight: 900;
     letter-spacing: 0.04em;
     line-height: 1.2;
-    color: var(--ink-main);
   }
 
-  .title-en {
-    margin: 3px 0 0 0;
+  .route-title-texts p {
+    margin: 3px 0 0;
     font-family: "Inter", sans-serif;
     font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    color: var(--ink-sub);
+    font-weight: 600;
+    color: var(--ink-secondary);
+    letter-spacing: 0.02em;
   }
 
-  .header-meta-right {
+  .header-right-info {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 18px;
   }
 
-  .legend-box {
+  .period-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--ink-secondary);
+    background: var(--bg-subtle);
+    padding: 5px 10px;
+  }
+
+  .cud-legend {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 5px 10px;
-    border: 1px solid var(--border-mid);
-    background: #FAFAFA;
-    font-size: 11.5px;
+    gap: 16px;
+    font-size: 12px;
     font-weight: 700;
   }
 
-  .legend-item {
+  .cud-legend-item {
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
-  .legend-swatch {
-    width: 12px;
-    height: 12px;
+  .cud-chip {
+    width: 14px;
+    height: 14px;
     display: inline-block;
-    border: 1px solid rgba(0,0,0,0.25);
   }
 
-  .controls-row {
+  /* コントロールバー（面の色分けのみで構造化） */
+  .control-strip {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
-    padding-top: 10px;
+    gap: 14px 24px;
+    background: var(--bg-subtle);
+    padding: 10px 14px;
   }
 
-  .period-tag {
+  .ctrl-block {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .ctrl-label {
     font-size: 11.5px;
     font-weight: 700;
-    color: var(--ink-main);
-    background: #F2F2F2;
-    border-left: 4px solid var(--line-shinjuku);
-    padding: 4px 10px;
+    color: var(--ink-secondary);
+    white-space: nowrap;
   }
 
-  .toggle-group {
-    display: flex;
-    gap: 0;
+  /* 表示内訳セグメント */
+  .seg-group {
+    display: inline-flex;
+    background: #E2E2E2;
+    padding: 2px;
   }
 
-  .toggle-btn {
-    padding: 6px 14px;
+  .seg-btn {
+    border: none;
+    background: transparent;
+    padding: 5px 12px;
     font-family: "Noto Sans JP", sans-serif;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
-    border: 1px solid var(--border-dark);
-    margin-left: -1px;
-    background: #FFFFFF;
-    color: var(--ink-main);
+    color: var(--ink-secondary);
     cursor: pointer;
     transition: background-color 0.15s, color 0.15s;
   }
 
-  .toggle-btn:first-child {
-    margin-left: 0;
+  .seg-btn:hover {
+    color: var(--ink-primary);
   }
 
-  .toggle-btn:hover {
-    background: #EFEFEF;
-  }
-
-  .toggle-btn.active {
-    background: var(--ink-main);
+  .seg-btn.active {
+    background: var(--ink-primary);
     color: #FFFFFF;
   }
 
-  /* ==========================================
-     メイン盤面エリア
-  ========================================== */
-  .scroll-wrapper {
-    overflow-x: auto;
-    background: var(--bg-panel);
-    border: 1px solid var(--border-mid);
-    margin: 18px 24px;
-    padding: 24px 20px 20px;
+  /* スケール伸縮コントロール（スライダー＋自由入力） */
+  .scale-ctrl-wrap {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
-  .container {
+  input[type="range"].scale-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 160px;
+    height: 4px;
+    background: #CCCCCC;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"].scale-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 18px;
+    background: var(--ink-primary);
+    cursor: pointer;
+  }
+
+  input[type="range"].scale-slider::-moz-range-thumb {
+    width: 14px;
+    height: 18px;
+    border: none;
+    background: var(--ink-primary);
+    cursor: pointer;
+  }
+
+  .scale-input-box {
+    display: inline-flex;
+    align-items: center;
+    background: #FFFFFF;
+    padding: 3px 8px;
+    gap: 4px;
+  }
+
+  .scale-num-input {
+    width: 48px;
+    border: none;
+    border-bottom: 1.5px solid var(--ink-primary);
+    font-family: "Roboto Condensed", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: right;
+    color: var(--ink-primary);
+    background: transparent;
+    padding: 1px 2px;
+    outline: none;
+  }
+
+  .scale-unit-text {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--ink-secondary);
+  }
+
+  .quick-scale-btn {
+    border: none;
+    background: #E2E2E2;
+    color: var(--ink-primary);
+    font-family: "Noto Sans JP", sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 9px;
+    cursor: pointer;
+  }
+
+  .quick-scale-btn:hover {
+    background: #D4D4D4;
+  }
+
+  /* =========================================================
+     メイン盤面（余白と軸だけで構成する路線図キャンバス）
+  ========================================================= */
+  .canvas-wrapper {
+    overflow-x: auto;
+    background: var(--bg-sheet);
+    margin: 18px 28px;
+    padding: 34px 24px 24px;
+  }
+
+  .chart-matrix {
     display: flex;
     min-width: 1380px;
   }
 
-  /* ==========================================
-     駅ナンバリング（路線図サイン風 2段矩形バッジ）
-  ========================================== */
-  .st-num-box {
+  /* =========================================================
+     駅ナンバリング（全駅共通・ラインカラー枠）
+  ========================================================= */
+  .st-code-badge {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 26px;
     height: 30px;
-    border: 2px solid var(--line-shinjuku);
+    border: 2.5px solid var(--line-theme);
     background: #FFFFFF;
-    color: var(--ink-main);
+    color: var(--ink-primary);
     font-family: "Roboto Condensed", "Inter", sans-serif;
     line-height: 1;
     flex-shrink: 0;
   }
 
-  .st-num-box.is-express {
-    background: var(--line-shinjuku);
-    color: #FFFFFF;
-  }
-
-  .st-num-prefix {
-    font-size: 9px;
+  .st-code-prefix {
+    font-size: 8.5px;
     font-weight: 700;
-    letter-spacing: 0.02em;
     margin-bottom: 1px;
   }
 
-  .st-num-digits {
+  .st-code-num {
     font-size: 13px;
     font-weight: 700;
     letter-spacing: -0.02em;
   }
 
-  /* 乗換路線ナンバリング記号（矩形サイン） */
-  .tr-sign {
+  /* 注釈マーク（期間限定表示用） */
+  .st-note-mark {
+    font-size: 10px;
+    font-weight: 900;
+    color: #D91E2A;
+    margin-left: 1px;
+  }
+
+  /* 乗換路線サイン（路線カラー矩形・CUD考慮の濃い文字コントラスト） */
+  .tr-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 42px;
     height: 18px;
     padding: 0 4px;
-    border: 1.5px solid var(--tr-color, #444);
-    background: #FFFFFF;
-    color: var(--ink-main);
+    border-left: 4px solid var(--tr-color, #555);
+    background: #F4F4F4;
+    color: var(--ink-primary);
     font-family: "Roboto Condensed", "Inter", sans-serif;
     font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: -0.01em;
     line-height: 1;
     white-space: nowrap;
   }
 
-  .tr-more-sign {
+  .tr-more-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 42px;
     height: 17px;
     padding: 0 4px;
-    border: 1px solid #888888;
-    background: #F4F4F4;
-    color: #333333;
+    background: #E6E6E6;
+    color: var(--ink-secondary);
     font-family: "Roboto Condensed", sans-serif;
     font-size: 10px;
     font-weight: 700;
     line-height: 1;
   }
 
-  /* ==========================================
-     ツールチップ（直線・黒枠）
-  ========================================== */
+  /* =========================================================
+     ツールチップ
+  ========================================================= */
   #tooltip {
     position: absolute;
-    background: #1A1A1A;
+    background: #181818;
     color: #FFFFFF;
-    border: 1px solid #000000;
     padding: 9px 12px;
     font-size: 12px;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.1s;
+    transition: opacity 0.08s;
     z-index: 1000;
     white-space: nowrap;
     line-height: 1.55;
   }
 
-  #tooltip .tt-num {
+  #tooltip .tt-code {
     font-family: "Roboto Condensed", sans-serif;
     font-weight: 700;
   }
 
-  /* ==========================================
-     乗換詳細モーダル（直線・設計図風ダイアログ）
-  ========================================== */
+  #tooltip .tt-note {
+    display: inline-block;
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid #444444;
+    color: #FFD166;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* =========================================================
+     乗換一覧モーダル（不要な枠線を排したフラットダイアログ）
+  ========================================================= */
   .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.5);
     display: none;
     justify-content: center;
     align-items: center;
@@ -317,168 +411,175 @@
     opacity: 1;
   }
 
-  .modal-content {
+  .modal-panel {
     background: #FFFFFF;
-    border: 2px solid var(--border-dark);
-    padding: 20px;
+    padding: 22px;
     width: 100%;
     max-width: 440px;
-    position: relative;
   }
 
-  .modal-header {
+  .modal-head {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin: 0 0 14px 0;
-    border-bottom: 2px solid var(--line-shinjuku);
-    padding-bottom: 10px;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 3px solid var(--line-theme);
   }
 
-  .modal-title-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .modal-header h3 {
+  .modal-head-titles h3 {
     margin: 0;
     font-size: 16px;
     font-weight: 900;
   }
 
-  .modal-header span.modal-sub {
+  .modal-head-titles span {
     font-family: "Inter", sans-serif;
     font-size: 11px;
-    font-weight: 700;
-    color: var(--ink-sub);
+    font-weight: 600;
+    color: var(--ink-secondary);
   }
 
-  .modal-transfer-list {
+  .modal-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 16px 0;
+    margin: 0 0 18px 0;
     display: flex;
     flex-direction: column;
     gap: 6px;
   }
 
-  .modal-transfer-item {
+  .modal-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 7px 10px;
-    background: #F8F8F8;
-    border: 1px solid #D8D8D8;
+    padding: 8px 10px;
+    background: var(--bg-subtle);
     font-size: 13px;
     font-weight: 700;
   }
 
-  .modal-line-left {
+  .modal-item-left {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 10px;
   }
 
-  .modal-tr-code {
+  .modal-code-pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 48px;
     height: 22px;
-    padding: 0 5px;
-    border: 2px solid var(--tr-color, #444);
+    padding: 0 6px;
+    border-left: 5px solid var(--tr-color, #555);
     background: #FFFFFF;
-    color: var(--ink-main);
     font-family: "Roboto Condensed", sans-serif;
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 700;
   }
 
-  .modal-note {
+  .modal-note-tag {
     font-size: 11px;
     font-weight: 500;
-    color: #444444;
-    background: #EAEAEA;
-    border: 1px solid #CCCCCC;
-    padding: 2px 6px;
+    color: var(--ink-secondary);
+    background: #E6E6E6;
+    padding: 2px 7px;
     white-space: nowrap;
   }
 
-  .close-btn {
+  .modal-close {
     width: 100%;
-    padding: 9px;
-    background: var(--ink-main);
+    padding: 10px;
+    border: none;
+    background: var(--ink-primary);
     color: #FFFFFF;
-    border: 1px solid var(--ink-main);
-    cursor: pointer;
     font-family: "Noto Sans JP", sans-serif;
-    font-weight: 700;
     font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
   }
 
-  .close-btn:hover {
-    background: #383838;
+  .modal-close:hover {
+    background: #333333;
   }
 
-  /* ==========================================
-     グラフ・路線共通パーツ
-  ========================================== */
-  .grid-bg {
+  /* =========================================================
+     グラフ共通パーツ
+  ========================================================= */
+  .grid-layer {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     z-index: 0;
     pointer-events: none;
   }
 
-  .graph-area {
+  .graph-cell {
     position: relative;
   }
 
-  .bar-container {
+  .bar-stack {
     display: flex;
+    position: relative;
   }
 
-  .bar-segment {
+  .bar-part {
     position: relative;
     z-index: 1;
-    transition: flex-basis 0.3s ease-out, opacity 0.15s;
+    transition: flex-basis 0.2s ease-out, opacity 0.12s;
     cursor: pointer;
   }
 
-  .bar-segment:hover {
-    opacity: 0.8;
+  .bar-part:hover {
+    opacity: 0.82;
   }
 
-  /* ==========================================
-     PC表示（横並び：768px以上）
-  ========================================== */
+  .bar-cut-svg {
+    position: absolute;
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .bar-cap-label {
+    position: absolute;
+    z-index: 5;
+    font-family: "Roboto Condensed", "Noto Sans JP", sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--ink-primary);
+    background: rgba(255, 255, 255, 0.92);
+    padding: 0 3px;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+
+  /* =========================================================
+     PCレイアウト（768px以上）
+  ========================================================= */
   @media (min-width: 768px) {
-    .container {
+    .chart-matrix {
       flex-direction: row;
       align-items: stretch;
-      height: 620px;
+      height: 670px;
     }
 
-    /* 左端ラベル列 */
-    .label-block {
+    /* 左軸ラベル列（Y軸線のみ残し、不要な横仕切り線を排除） */
+    .axis-column {
       display: flex;
       flex-direction: column;
-      width: 116px;
+      width: 120px;
       flex-shrink: 0;
-      border-right: 1px solid var(--border-dark);
     }
 
-    .graph-area-labels {
+    .y-axis-labels {
       flex-grow: 1;
       position: relative;
-      border-bottom: 1px solid var(--border-dark);
+      border-right: 1.5px solid var(--axis-line);
+      border-bottom: 1.5px solid var(--axis-line);
     }
 
-    .graph-label {
+    .y-tick-label {
       position: absolute;
       bottom: var(--pos);
       right: 10px;
@@ -486,43 +587,56 @@
       font-family: "Roboto Condensed", "Noto Sans JP", sans-serif;
       font-size: 11.5px;
       font-weight: 700;
-      color: var(--ink-sub);
+      color: var(--ink-secondary);
       white-space: nowrap;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
     }
 
-    .station-name-spacer {
-      height: 162px;
+    .y-tick-label.is-zero {
+      bottom: 2px;
+      transform: none;
+    }
+
+    .y-unit {
+      font-family: "Noto Sans JP", sans-serif;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--ink-primary);
+    }
+
+    .station-axis-spacer {
+      height: 196px;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       align-items: flex-end;
-      padding: 0 10px 8px 0;
-      font-size: 11px;
+      padding: 0 12px 10px 0;
+      font-size: 10.5px;
       font-weight: 700;
-      color: var(--ink-sub);
-      border-bottom: 1px solid var(--border-light);
+      color: var(--ink-muted);
     }
 
-    .line-map-labels {
+    .service-axis-labels {
       display: flex;
       flex-direction: column;
       padding: 4px 0;
-      border-bottom: 1px solid var(--border-light);
     }
 
-    .line-label-row {
+    .service-row {
       height: 34px;
       display: flex;
       align-items: center;
       justify-content: flex-end;
       gap: 8px;
-      padding-right: 10px;
+      padding-right: 12px;
     }
 
-    .line-label-sample {
+    .service-swatch-line {
       width: 24px;
       height: 11px;
-      background-color: var(--line-color);
+      background-color: var(--srv-color);
       position: relative;
       display: flex;
       align-items: center;
@@ -530,51 +644,48 @@
       flex-shrink: 0;
     }
 
-    .line-label-sample::after {
+    .service-swatch-line::after {
       content: "";
-      width: 9px;
-      height: 9px;
+      width: 8px;
+      height: 8px;
       background: #FFFFFF;
-      border: 2px solid var(--ink-main);
-      border-radius: 50%;
+      border-radius: 50% !important;
     }
 
-    .line-label-texts {
+    .service-names {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
       line-height: 1.1;
     }
 
-    .line-label-jp {
+    .service-jp {
       font-size: 11.5px;
       font-weight: 900;
-      color: var(--ink-main);
+      color: var(--ink-primary);
     }
 
-    .line-label-en {
+    .service-en {
       font-family: "Inter", sans-serif;
       font-size: 9px;
-      font-weight: 700;
-      color: var(--ink-sub);
+      font-weight: 600;
+      color: var(--ink-secondary);
     }
 
-    .transfer-spacer {
-      height: 114px;
+    .transfer-axis-spacer {
+      height: 112px;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
       align-items: flex-end;
-      padding: 8px 10px 0 0;
+      padding: 10px 12px 0 0;
       font-size: 10.5px;
       font-weight: 700;
-      color: var(--ink-sub);
-      line-height: 1.3;
-      text-align: right;
+      color: var(--ink-muted);
     }
 
-    /* 各駅列 */
-    .station-block {
+    /* 各駅カラム（縦罫線なしで余白と軸だけで整列） */
+    .station-col {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -583,30 +694,30 @@
       position: relative;
     }
 
-    .graph-area {
+    .graph-cell {
       flex-grow: 1;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       align-items: center;
       width: 100%;
-      border-bottom: 1px solid var(--border-dark);
+      border-bottom: 1.5px solid var(--axis-line);
     }
 
-    .grid-line {
+    .grid-h-line {
       position: absolute;
       left: 0;
       right: 0;
       bottom: var(--pos);
-      border-bottom: 1px solid #EBEBEB;
+      border-bottom: 1px solid var(--grid-minor);
     }
 
-    .grid-line.major {
-      border-bottom: 1px solid #D4D4D4;
+    .grid-h-line.major {
+      border-bottom: 1px solid var(--grid-major);
     }
 
-    /* PC積み上げ棒（完全矩形・白境界線） */
-    .bar-container {
+    /* 積み上げ棒（下：乗車＝CUD青、上：降車＝CUDアンバー） */
+    .bar-stack {
       width: 24px;
       flex-direction: column;
       justify-content: flex-end;
@@ -614,99 +725,119 @@
     }
 
     .bar-alight {
-      flex-basis: var(--alight-size);
+      flex-basis: var(--alight-pct);
       width: 100%;
       border-bottom: 1px solid #FFFFFF;
     }
 
     .bar-board {
-      flex-basis: var(--board-size);
+      flex-basis: var(--board-pct);
       width: 100%;
     }
 
-    /* 駅名（日本語＋英語ローマ字縦書き）＋駅ナンバリング */
-    .station-name-container {
+    .bar-cut-svg {
+      top: 16%;
+      left: -4px;
+      width: 32px;
+      height: 12px;
+    }
+
+    .bar-cap-label {
+      top: -19px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* 駅名ブロック */
+    .station-meta-cell {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      height: 162px;
+      height: 196px;
       width: 100%;
       padding: 8px 2px 8px;
-      border-bottom: 1px solid var(--border-light);
       position: relative;
     }
 
-    /* 駅名ブロックから路線帯へ伸びる縦のガイドライン */
-    .station-name-container::after {
+    .station-meta-cell::after {
       content: "";
       position: absolute;
       bottom: 0;
       left: 50%;
       width: 1.5px;
       height: 8px;
-      background-color: #999999;
+      background-color: #B0B0B0;
       transform: translateX(-50%);
     }
 
-    .station-bilingual-wrap {
+    .bilingual-name-box {
       display: flex;
       flex-direction: row-reverse;
       align-items: flex-end;
       justify-content: center;
-      height: 112px;
+      height: 146px;
       margin-bottom: 6px;
       gap: 1px;
     }
 
-    .station-name-jp {
+    .st-name-jp {
       writing-mode: vertical-rl;
       font-size: 13px;
       font-weight: 700;
       line-height: 1.1;
       letter-spacing: 0.04em;
-      color: var(--ink-main);
+      color: var(--ink-primary);
     }
 
-    .station-name-jp.is-express {
-      font-size: 14px;
+    .st-name-jp.is-express {
+      font-size: 13.5px;
       font-weight: 900;
     }
 
-    .station-name-en {
-      writing-mode: vertical-rl;
-      font-family: "Inter", sans-serif;
-      font-size: 9px;
-      font-weight: 600;
-      line-height: 1;
-      letter-spacing: 0.02em;
-      color: #6E6E6E;
+    .st-sub-jp {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--ink-secondary);
     }
 
-    /* 路線図帯エリア（各駅停車・急行） */
-    .line-map-area {
+    .st-note-mark {
+      margin-left: 0;
+      margin-top: 2px;
+    }
+
+    .st-name-en {
+      writing-mode: vertical-rl;
+      font-family: "Inter", sans-serif;
+      font-size: 8.5px;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--ink-muted);
+    }
+
+    /* 路線帯エリア（上：各駅停車＝黄緑、下：急行＝赤） */
+    .route-tracks-cell {
       display: flex;
       flex-direction: column;
       width: 100%;
       padding: 4px 0;
-      border-bottom: 1px solid var(--border-light);
       position: relative;
     }
 
-    /* 駅位置の縦軸ガイドライン（添付画像の路線図スタイル） */
-    .line-map-area::before {
+    /* 駅の縦軸ガイドライン */
+    .route-tracks-cell::before {
       content: "";
       position: absolute;
       top: 0;
       bottom: 0;
       left: 50%;
       width: 1.5px;
-      background-color: #999999;
+      background-color: #B0B0B0;
       transform: translateX(-50%);
       z-index: 1;
     }
 
-    .track {
+    .service-track {
       height: 34px;
       width: 100%;
       position: relative;
@@ -715,28 +846,28 @@
       justify-content: center;
     }
 
-    .track::before {
+    .service-track::before {
       content: "";
       position: absolute;
       width: 100%;
       height: 11px;
-      background-color: var(--line-color);
+      background-color: var(--srv-color);
       z-index: 1;
     }
 
-    /* 始発・終着駅（新宿・本八幡）で路線帯を端でピタッと止める */
-    .station-block:nth-child(2) .track::before {
+    /* 始発・終着駅で帯を端に揃える */
+    .station-col:nth-child(2) .service-track::before {
       width: 50%;
       right: 0;
     }
-    .station-block:last-child .track::before {
+    .station-col:last-child .service-track::before {
       width: 50%;
       left: 0;
     }
 
-    /* 乗換路線サイン列（路線図の下に縦並び配置） */
-    .transfer-column {
-      height: 114px;
+    /* 乗換路線サイン列 */
+    .transfer-cell {
+      height: 112px;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -746,79 +877,78 @@
       position: relative;
     }
 
-    .transfer-column.has-transfers {
+    .transfer-cell.clickable {
       cursor: pointer;
     }
 
-    .transfer-column.has-transfers::before {
+    .transfer-cell.clickable::before {
       content: "";
       position: absolute;
       top: 0;
       left: 50%;
       width: 1.5px;
       height: 8px;
-      background-color: #999999;
+      background-color: #B0B0B0;
       transform: translateX(-50%);
     }
 
-    .transfer-stack {
+    .transfer-list-col {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 3px;
       padding: 2px;
-      transition: background-color 0.15s;
     }
 
-    .transfer-column.has-transfers:hover .transfer-stack {
-      background-color: #EFEFEF;
+    .transfer-cell.clickable:hover .transfer-list-col {
+      background: var(--bg-subtle);
     }
   }
 
-  /* ==========================================
-     スマホ・狭幅表示（縦並び：767px以下）
-  ========================================== */
+  /* =========================================================
+     スマホレイアウト（767px以下）
+  ========================================================= */
   @media (max-width: 767px) {
-    .header-area {
+    .top-header {
       padding: 12px 14px;
     }
 
-    .title-jp {
-      font-size: 1.1rem;
+    .route-title-texts h1 {
+      font-size: 1.05rem;
     }
 
-    .scroll-wrapper {
-      padding: 10px 10px 14px;
+    .canvas-wrapper {
       margin: 10px;
+      padding: 10px 10px 14px;
       overflow-x: visible;
     }
 
-    .container {
+    .chart-matrix {
       flex-direction: column;
       min-width: auto;
     }
 
-    .label-block {
+    .axis-column {
       display: flex;
       flex-direction: row;
       width: 100%;
-      height: 76px;
+      height: 70px;
       flex-shrink: 0;
       position: sticky;
-      top: 118px;
+      top: 154px;
       background: #FFFFFF;
       z-index: 20;
-      border-bottom: 1px solid var(--border-dark);
+      border-bottom: 1.5px solid var(--axis-line);
     }
 
-    .line-map-labels {
+    .service-axis-labels {
       order: 1;
       display: flex;
       flex-direction: row;
       margin-right: 8px;
     }
 
-    .line-label-row {
+    .service-row {
       width: 28px;
       writing-mode: vertical-rl;
       display: flex;
@@ -827,65 +957,86 @@
       padding-bottom: 6px;
     }
 
-    .line-label-sample {
+    .service-swatch-line,
+    .service-en {
       display: none;
     }
 
-    .line-label-jp {
+    .service-jp {
       font-size: 11px;
       font-weight: 900;
-      color: var(--ink-main);
+      color: var(--ink-primary);
     }
 
-    .line-label-en {
-      display: none;
-    }
-
-    .station-name-spacer {
+    .station-axis-spacer {
       order: 2;
       width: 148px;
       flex-shrink: 0;
       display: flex;
       align-items: flex-end;
       padding-bottom: 6px;
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 700;
-      color: var(--ink-sub);
+      color: var(--ink-muted);
     }
 
-    .transfer-spacer {
+    .transfer-axis-spacer {
       display: none;
     }
 
-    .graph-area-labels {
+    .y-axis-labels {
       order: 3;
       flex-grow: 1;
       position: relative;
-      border-left: 1px solid var(--border-dark);
+      border-left: 1.5px solid var(--axis-line);
     }
 
-    .graph-label {
+    .y-tick-label {
       position: absolute;
       left: var(--pos);
       bottom: 5px;
       transform: translateX(-50%);
-      font-family: "Roboto Condensed", sans-serif;
-      font-size: 10.5px;
+      font-family: "Roboto Condensed", "Noto Sans JP", sans-serif;
+      font-size: 10px;
       font-weight: 700;
-      color: var(--ink-sub);
+      color: var(--ink-secondary);
       white-space: nowrap;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 2px;
     }
 
-    .station-block {
+    .y-tick-label.is-zero {
+      left: 4px;
+      transform: none;
+    }
+
+    .y-tick-label.is-max {
+      left: auto;
+      right: 2px;
+      transform: none;
+    }
+
+    .y-unit {
+      font-family: "Noto Sans JP", sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--ink-primary);
+    }
+
+    .station-col {
       display: flex;
       flex-direction: row;
       align-items: stretch;
-      min-height: 66px;
+      min-height: 68px;
       width: 100%;
-      border-bottom: 1px solid var(--border-light);
     }
 
-    .line-map-area {
+    .station-col:nth-child(even) {
+      background-color: #FAFAFA;
+    }
+
+    .route-tracks-cell {
       order: 1;
       display: flex;
       flex-direction: row;
@@ -894,19 +1045,19 @@
       position: relative;
     }
 
-    .line-map-area::before {
+    .route-tracks-cell::before {
       content: "";
       position: absolute;
       left: 0;
       right: 0;
       top: 50%;
       height: 1.5px;
-      background-color: #999999;
+      background-color: #B0B0B0;
       transform: translateY(-50%);
       z-index: 1;
     }
 
-    .track {
+    .service-track {
       width: 28px;
       position: relative;
       display: flex;
@@ -914,25 +1065,25 @@
       justify-content: center;
     }
 
-    .track::before {
+    .service-track::before {
       content: "";
       position: absolute;
       height: 100%;
       width: 10px;
-      background-color: var(--line-color);
+      background-color: var(--srv-color);
       z-index: 1;
     }
 
-    .station-block:nth-child(2) .track::before {
+    .station-col:nth-child(2) .service-track::before {
       height: 50%;
       bottom: 0;
     }
-    .station-block:last-child .track::before {
+    .station-col:last-child .service-track::before {
       height: 50%;
       top: 0;
     }
 
-    .station-name-container {
+    .station-meta-cell {
       order: 2;
       display: flex;
       flex-direction: column;
@@ -944,230 +1095,258 @@
       gap: 4px;
     }
 
-    .mobile-st-head {
+    .mobile-st-row {
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .mobile-st-names {
+    .mobile-st-labels {
       display: flex;
       flex-direction: column;
       line-height: 1.15;
     }
 
-    .station-name-jp {
+    .st-name-jp {
       font-size: 13px;
       font-weight: 700;
-      color: var(--ink-main);
+      color: var(--ink-primary);
     }
 
-    .station-name-jp.is-express {
+    .st-name-jp.is-express {
       font-weight: 900;
     }
 
-    .station-name-en {
-      font-family: "Inter", sans-serif;
-      font-size: 9.5px;
-      font-weight: 600;
-      color: var(--ink-sub);
+    .st-sub-jp {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--ink-secondary);
     }
 
-    .transfer-column {
-      order: 2;
+    .st-name-en {
+      font-family: "Inter", sans-serif;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+
+    .transfer-cell {
       display: contents;
     }
 
-    .mobile-transfer-row {
+    .mobile-tr-wrap {
       display: flex;
       flex-wrap: wrap;
       gap: 3px;
       cursor: pointer;
     }
 
-    .graph-area {
+    .graph-cell {
       order: 3;
       flex-grow: 1;
       display: flex;
       align-items: center;
-      border-left: 1px solid var(--border-dark);
+      border-left: 1.5px solid var(--axis-line);
+      padding-right: 4px;
     }
 
-    .grid-line {
+    .grid-h-line {
       position: absolute;
       top: 0;
       bottom: 0;
       left: var(--pos);
-      border-left: 1px solid #EBEBEB;
+      border-left: 1px solid var(--grid-minor);
     }
 
-    .grid-line.major {
-      border-left: 1px solid #D4D4D4;
+    .grid-h-line.major {
+      border-left: 1px solid var(--grid-major);
     }
 
-    /* スマホ積み上げ棒（横方向矩形） */
-    .bar-container {
+    .bar-stack {
       height: 20px;
       flex-direction: row;
       width: 100%;
     }
 
     .bar-board {
-      flex-basis: var(--board-size);
+      flex-basis: var(--board-pct);
       height: 100%;
       border-right: 1px solid #FFFFFF;
     }
 
     .bar-alight {
-      flex-basis: var(--alight-size);
+      flex-basis: var(--alight-pct);
       height: 100%;
+    }
+
+    .bar-cut-svg {
+      right: 22%;
+      top: -4px;
+      width: 12px;
+      height: 28px;
+    }
+
+    .bar-cap-label {
+      right: 2px;
+      top: -17px;
     }
   }
 
-  /* 停車ノード（路線図上の白丸・黒枠） */
-  .node {
+  /* =========================================================
+     停車駅マーカー（白丸＋黒縁で高コントラスト化）
+  ========================================================= */
+  .stop-dot {
     width: 14px;
     height: 14px;
     background-color: #FFFFFF;
-    border: 2.5px solid var(--ink-main);
+    border: 2.5px solid var(--ink-primary);
     border-radius: 50% !important;
     z-index: 2;
   }
 
-  .pass {
+  .stop-dot.is-pass {
     visibility: hidden;
   }
 
-  .source-footer {
-    padding: 4px 24px 24px;
+  /* フッター＆注釈 */
+  .bottom-footer {
+    padding: 0 28px 28px;
     font-size: 11.5px;
-    color: var(--ink-sub);
-    line-height: 1.65;
+    color: var(--ink-secondary);
+    line-height: 1.75;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
-  .source-footer a {
-    color: var(--ink-main);
+  .bottom-footer a {
+    color: var(--ink-primary);
     font-weight: 700;
     text-decoration: underline;
+  }
+
+  .route-note-item {
+    color: var(--ink-primary);
+    font-weight: 700;
+  }
+
+  .route-note-mark {
+    color: #D91E2A;
+    font-weight: 900;
+    margin-right: 4px;
   }
 </style>
 </head>
 <body>
 
-<div class="header-area">
-  <div class="header-top">
-    <div class="title-block">
-      <div class="title-accent-bar"></div>
-      <div class="title-texts">
-        <h2 class="title-jp">都営新宿線 乗降客数路線図</h2>
-        <p class="title-en">Toei Shinjuku Line Passenger Volume &amp; Route Map</p>
+<header class="top-header">
+  <div class="header-main-row">
+    <div class="route-title-group">
+      <div class="route-emblem" id="route-symbol">S</div>
+      <div class="route-title-texts">
+        <h1 id="route-title-jp">都営新宿線 乗降客数路線図</h1>
+        <p id="route-title-en">Toei Shinjuku Line Passenger Volume &amp; Route Map</p>
       </div>
     </div>
-    <div class="header-meta-right">
-      <div class="legend-box">
-        <span class="legend-item"><span class="legend-swatch" style="background: var(--bar-board);"></span>乗車人員</span>
-        <span class="legend-item"><span class="legend-swatch" style="background: var(--bar-alight);"></span>降車人員</span>
+    <div class="header-right-info">
+      <span class="period-label" id="route-period">2025年4月〜2026年3月｜一日平均乗降人員</span>
+      <div class="cud-legend">
+        <span class="cud-legend-item"><span class="cud-chip" style="background: var(--cud-board);"></span>乗車人員</span>
+        <span class="cud-legend-item"><span class="cud-chip" style="background: var(--cud-alight);"></span>降車人員</span>
       </div>
     </div>
   </div>
-  <div class="controls-row">
-    <div class="period-tag">集計期間：2025年4月〜2026年3月（一日平均乗降人員）</div>
-    <div class="toggle-group" id="mode-toggles">
-      <button class="toggle-btn mode-btn active" onclick="switchMode(event, 'total')">乗降合算（積み上げ）</button>
-      <button class="toggle-btn mode-btn" onclick="switchMode(event, 'board')">乗車人員のみ</button>
-      <button class="toggle-btn mode-btn" onclick="switchMode(event, 'alight')">降車人員のみ</button>
+
+  <div class="control-strip">
+    <!-- 表示内訳切替 -->
+    <div class="ctrl-block">
+      <span class="ctrl-label">表示内訳</span>
+      <div class="seg-group" id="mode-selector">
+        <button class="seg-btn active" onclick="setMode(event, 'total')">乗降合算</button>
+        <button class="seg-btn" onclick="setMode(event, 'board')">乗車人員</button>
+        <button class="seg-btn" onclick="setMode(event, 'alight')">降車人員</button>
+      </div>
+    </div>
+
+    <!-- スケール伸縮コントロール（他路線でも汎用的に動作） -->
+    <div class="ctrl-block">
+      <span class="ctrl-label">表示上限スケール</span>
+      <div class="scale-ctrl-wrap">
+        <input type="range" class="scale-slider" id="scale-slider" min="5" max="35" step="1" value="15" oninput="onSliderInput(this.value)">
+        <div class="scale-input-box">
+          <input type="number" class="scale-num-input" id="scale-num-input" min="1" max="200" step="1" value="15" onchange="onNumberChange(this.value)" onkeydown="if(event.key==='Enter') this.blur();">
+          <span class="scale-unit-text">万人</span>
+        </div>
+        <button class="quick-scale-btn" onclick="applyPresetScale('standard')">標準倍率</button>
+        <button class="quick-scale-btn" onclick="applyPresetScale('fit')">全体表示</button>
+      </div>
     </div>
   </div>
-</div>
+</header>
 
-<div class="scroll-wrapper">
-  <div class="container" id="map-container"></div>
-</div>
+<main class="canvas-wrapper">
+  <div class="chart-matrix" id="chart-matrix"></div>
+</main>
 
-<div class="source-footer">
-  出典：<a href="https://www.kotsu.metro.tokyo.jp/subway/kanren/passengers.html#c" target="_blank" rel="noopener noreferrer">東京都交通局「各駅乗降人員一覧（新宿線 2025年4月～2026年3月）」</a><br>
-  ※接続路線のナンバリング記号をクリックすると、乗り換え路線一覧を表示します。
-</div>
+<footer class="bottom-footer">
+  <div id="route-notes"></div>
+  <div>出典：<a href="https://www.kotsu.metro.tokyo.jp/subway/kanren/passengers.html#c" target="_blank" rel="noopener noreferrer">東京都交通局「各駅乗降人員一覧（新宿線 2025年4月～2026年3月）」</a></div>
+</footer>
 
 <div id="tooltip"></div>
 
 <div id="transfer-modal" class="modal-overlay" onclick="closePopup()">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <div id="modal-station-code-wrap"></div>
-      <div class="modal-title-group">
-        <h3 id="modal-station-name"></h3>
-        <span id="modal-station-en" class="modal-sub"></span>
+  <div class="modal-panel" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div id="modal-code-slot"></div>
+      <div class="modal-head-titles">
+        <h3 id="modal-st-jp"></h3>
+        <span id="modal-st-en"></span>
       </div>
     </div>
-    <ul id="modal-transfer-list" class="modal-transfer-list"></ul>
-    <button class="close-btn" onclick="closePopup()">閉じる</button>
+    <ul id="modal-tr-list" class="modal-list"></ul>
+    <button class="modal-close" onclick="closePopup()">閉じる</button>
   </div>
 </div>
 
 <script>
-  let currentMode = 'total';
-
-  const transferMeta = {
-    "新宿": [
-      { code: "KO-01", line: "京王線・京王新線", color: "#DD0077", note: "直通運転" },
-      { code: "OH-01", line: "小田急小田原線", color: "#2288CC" },
-      { code: "M-08", line: "東京メトロ丸ノ内線", color: "#F62E36" },
-      { code: "E-27", line: "都営大江戸線", color: "#B6007A", note: "新宿西口: E-01" },
-      { code: "JY-17", line: "JR山手線", color: "#9ACD32" },
-      { code: "JC-05", line: "JR中央線（快速）", color: "#F15A22" },
-      { code: "JB-10", line: "JR中央・総武線（各駅停車）", color: "#E5B800" },
-      { code: "JA-11", line: "JR埼京線", color: "#00AC9A" },
-      { code: "JS-20", line: "JR湘南新宿ライン", color: "#E21F26" }
+  /* =========================================================
+     路線データ定義（乗換案内：都営新宿線・京王線 停車駅案内図準拠）
+  ========================================================= */
+  const ROUTE_CONFIG = {
+    symbol: "S",
+    themeColor: "#8DC21F",
+    titleJp: "都営新宿線 乗降客数路線図",
+    titleEn: "Toei Shinjuku Line Passenger Volume & Route Map",
+    period: "2025年4月〜2026年3月｜一日平均乗降人員",
+    services: [
+      { id: "local", name: "各駅停車", en: "Local", color: "#8DC21F" },
+      { id: "express", name: "急行", en: "Express", color: "#D91E2A" }
     ],
-    "新宿三丁目": [
-      { code: "M-09", line: "東京メトロ丸ノ内線", color: "#F62E36" },
-      { code: "F-13", line: "東京メトロ副都心線", color: "#9C5E31" }
-    ],
-    "市ケ谷": [
-      { code: "Y-14", line: "東京メトロ有楽町線", color: "#C1A470" },
-      { code: "N-09", line: "東京メトロ南北線", color: "#00AC9B" },
-      { code: "JB-15", line: "JR中央・総武線（各駅停車）", color: "#E5B800" }
-    ],
-    "九段下": [
-      { code: "T-07", line: "東京メトロ東西線", color: "#009BBF" },
-      { code: "Z-06", line: "東京メトロ半蔵門線", color: "#8F76D6" }
-    ],
-    "神保町": [
-      { code: "I-10", line: "都営三田線", color: "#006AB8" },
-      { code: "Z-07", line: "東京メトロ半蔵門線", color: "#8F76D6" }
-    ],
-    "小川町": [
-      { code: "M-19", line: "東京メトロ丸ノ内線", color: "#F62E36", note: "淡路町駅" },
-      { code: "C-12", line: "東京メトロ千代田線", color: "#00BB85", note: "新御茶ノ水駅" }
-    ],
-    "馬喰横山": [
-      { code: "A-15", line: "都営浅草線", color: "#EC6E65", note: "東日本橋駅" },
-      { code: "JO-21", line: "JR総武線快速", color: "#0070B9", note: "馬喰町駅" }
-    ],
-    "森下": [
-      { code: "E-13", line: "都営大江戸線", color: "#B6007A" }
-    ],
-    "住吉": [
-      { code: "Z-12", line: "東京メトロ半蔵門線", color: "#8F76D6" }
-    ],
-    "本八幡": [
-      { code: "JB-28", line: "JR中央・総武線（各駅停車）", color: "#E5B800" },
-      { code: "KS-16", line: "京成本線", color: "#005AAA", note: "京成八幡駅" }
-    ]
-  };
-
-  const lineData = {
-    maxPassengers: 350000,
     stations: [
       { prefix: "S", num: "01", code: "S-01", name: "新宿", en: "Shinjuku", board: 151735, alight: 149161, stops: ["local", "express"] },
       { prefix: "S", num: "02", code: "S-02", name: "新宿三丁目", en: "Shinjuku-sanchome", board: 37253, alight: 38900, stops: ["local"] },
       { prefix: "S", num: "03", code: "S-03", name: "曙橋", en: "Akebonobashi", board: 18838, alight: 18361, stops: ["local"] },
       { prefix: "S", num: "04", code: "S-04", name: "市ケ谷", en: "Ichigaya", board: 46118, alight: 47426, stops: ["local", "express"] },
-      { prefix: "S", num: "05", code: "S-05", name: "九段下", en: "Kudanshita", board: 58305, alight: 58488, stops: ["local", "express"] },
+      { prefix: "S", num: "05", code: "S-05", name: "九段下", en: "Kudanshita", board: 58305, alight: 58488, stops: ["local"] },
       { prefix: "S", num: "06", code: "S-06", name: "神保町", en: "Jimbocho", board: 63758, alight: 64034, stops: ["local", "express"] },
       { prefix: "S", num: "07", code: "S-07", name: "小川町", en: "Ogawamachi", board: 38096, alight: 38547, stops: ["local"] },
-      { prefix: "S", num: "08", code: "S-08", name: "岩本町", en: "Iwamotocho", board: 27255, alight: 27302, stops: ["local"] },
+      {
+        prefix: "S",
+        num: "08",
+        code: "S-08",
+        name: "岩本町",
+        subName: "（秋葉原）",
+        en: "Iwamotocho (Akihabara)",
+        board: 27255,
+        alight: 27302,
+        stops: ["local", "express"],
+        note: {
+          expiresAt: "2027-03-13T00:00:00+09:00",
+          shortText: "2027年3月13日（土）より急行停車",
+          footerText: "岩本町駅（S-08）は2027年3月13日（土）より急行停車駅となります。"
+        }
+      },
       { prefix: "S", num: "09", code: "S-09", name: "馬喰横山", en: "Bakuro-yokoyama", board: 58156, alight: 58179, stops: ["local", "express"] },
       { prefix: "S", num: "10", code: "S-10", name: "浜町", en: "Hamacho", board: 11150, alight: 11295, stops: ["local"] },
       { prefix: "S", num: "11", code: "S-11", name: "森下", en: "Morishita", board: 37640, alight: 38615, stops: ["local", "express"] },
@@ -1180,272 +1359,526 @@
       { prefix: "S", num: "18", code: "S-18", name: "一之江", en: "Ichinoe", board: 22319, alight: 21980, stops: ["local"] },
       { prefix: "S", num: "19", code: "S-19", name: "瑞江", en: "Mizue", board: 28221, alight: 28245, stops: ["local"] },
       { prefix: "S", num: "20", code: "S-20", name: "篠崎", en: "Shinozaki", board: 20519, alight: 20340, stops: ["local"] },
-      { prefix: "S", num: "21", code: "S-21", name: "本八幡", en: "Moto-yawata", board: 37695, alight: 36869, stops: ["local", "express"] }
-    ]
+      { prefix: "S", num: "21", code: "S-21", name: "本八幡", en: "Motoyawata", board: 37695, alight: 36869, stops: ["local", "express"] }
+    ],
+    transfers: {
+      "S-01": [
+        { code: "E", line: "都営大江戸線", color: "#B6007A" },
+        { code: "JR", line: "JR線", color: "#008803" },
+        { code: "OH", line: "小田急線", color: "#2288CC" },
+        { code: "M", line: "東京メトロ丸ノ内線", color: "#F62E36" }
+      ],
+      "S-02": [
+        { code: "M", line: "東京メトロ丸ノ内線", color: "#F62E36" },
+        { code: "F", line: "東京メトロ副都心線", color: "#9C5E31" }
+      ],
+      "S-04": [
+        { code: "Y", line: "東京メトロ有楽町線", color: "#C1A470" },
+        { code: "N", line: "東京メトロ南北線", color: "#00AC9B" },
+        { code: "JR", line: "JR中央・総武線", color: "#008803" }
+      ],
+      "S-05": [
+        { code: "T", line: "東京メトロ東西線", color: "#009BBF" },
+        { code: "Z", line: "東京メトロ半蔵門線", color: "#8F76D6" }
+      ],
+      "S-06": [
+        { code: "I", line: "都営三田線", color: "#006AB8" },
+        { code: "Z", line: "東京メトロ半蔵門線", color: "#8F76D6" }
+      ],
+      "S-07": [
+        { code: "M", line: "東京メトロ丸ノ内線", color: "#F62E36", note: "淡路町" },
+        { code: "C", line: "東京メトロ千代田線", color: "#00BB85", note: "新御茶ノ水" }
+      ],
+      "S-08": [
+        { code: "H", line: "東京メトロ日比谷線", color: "#B5B5AC", note: "秋葉原" },
+        { code: "JR", line: "JR線", color: "#008803", note: "秋葉原" },
+        { code: "TX", line: "つくばエクスプレス線", color: "#003893", note: "秋葉原" }
+      ],
+      "S-09": [
+        { code: "A", line: "都営浅草線", color: "#E85298", note: "東日本橋" },
+        { code: "JR", line: "JR総武快速線", color: "#008803", note: "馬喰町" }
+      ],
+      "S-11": [
+        { code: "E", line: "都営大江戸線", color: "#B6007A" }
+      ],
+      "S-13": [
+        { code: "Z", line: "東京メトロ半蔵門線", color: "#8F76D6" }
+      ],
+      "S-21": [
+        { code: "JR", line: "JR中央・総武線", color: "#008803" },
+        { code: "KS", line: "京成線", color: "#005AAA", note: "京成八幡" }
+      ]
+    }
   };
 
-  const trainTypes = [
-    { id: "local", name: "各駅停車", en: "Local", color: "#4A4A4A" },
-    { id: "express", name: "急行", en: "Express", color: "#E60012" }
-  ];
+  /* =========================================================
+     期間限定注釈の有効判定（該当の日付を過ぎたら自動消去）
+  ========================================================= */
+  function getActiveStationNote(station, now = new Date()) {
+    if (!station.note || !station.note.expiresAt) return null;
+    const expiryDate = new Date(station.note.expiresAt);
+    return now < expiryDate ? station.note : null;
+  }
 
-  function createStationNumBox(station) {
-    const isExp = station.stops.includes("express");
+  function renderFooterNotes() {
+    const notesContainer = document.getElementById('route-notes');
+    const now = new Date();
+    const activeNotes = ROUTE_CONFIG.stations
+      .map(st => getActiveStationNote(st, now))
+      .filter(Boolean);
+
+    if (activeNotes.length === 0) {
+      notesContainer.innerHTML = '';
+      notesContainer.style.display = 'none';
+      return;
+    }
+
+    notesContainer.style.display = 'block';
+    notesContainer.innerHTML = activeNotes
+      .map(n => `<div class="route-note-item"><span class="route-note-mark">※</span>${n.footerText}</div>`)
+      .join('');
+  }
+
+  /* =========================================================
+     状態管理＆自動スケール計算（データ値から自動算出）
+  ========================================================= */
+  let currentMode = 'total'; // 'total' | 'board' | 'alight'
+  let scaleMaxMan = 15; // 単位：万人
+
+  function getStationMetric(st, mode) {
+    if (mode === 'board') return st.board;
+    if (mode === 'alight') return st.alight;
+    return st.board + st.alight;
+  }
+
+  function getDataBounds(mode) {
+    const vals = ROUTE_CONFIG.stations.map(st => getStationMetric(st, mode)).sort((a, b) => b - a);
+    const maxVal = vals[0] || 100000;
+    const secondVal = vals[1] || maxVal;
+    const fullMaxMan = Math.ceil((maxVal * 1.1) / 10000);
+    const stdMaxMan = Math.max(5, Math.ceil((secondVal * 1.15) / 10000));
+    return { fullMaxMan, stdMaxMan };
+  }
+
+  function syncScaleControls(newValMan) {
+    const { fullMaxMan } = getDataBounds(currentMode);
+    const slider = document.getElementById('scale-slider');
+    const numInput = document.getElementById('scale-num-input');
+
+    const sliderMax = Math.max(fullMaxMan, newValMan);
+    slider.max = sliderMax;
+    slider.min = Math.max(2, Math.floor(fullMaxMan * 0.1));
+    slider.value = newValMan;
+    numInput.value = newValMan;
+    scaleMaxMan = newValMan;
+  }
+
+  function onSliderInput(val) {
+    const num = Math.max(1, parseInt(val, 10) || 15);
+    scaleMaxMan = num;
+    document.getElementById('scale-num-input').value = num;
+    renderChart();
+  }
+
+  function onNumberChange(val) {
+    let num = parseInt(val, 10);
+    if (isNaN(num) || num < 1) num = 1;
+    if (num > 500) num = 500;
+    syncScaleControls(num);
+    renderChart();
+  }
+
+  function applyPresetScale(presetType) {
+    const { fullMaxMan, stdMaxMan } = getDataBounds(currentMode);
+    const target = presetType === 'fit' ? fullMaxMan : stdMaxMan;
+    syncScaleControls(target);
+    renderChart();
+  }
+
+  function setMode(ev, modeStr) {
+    currentMode = modeStr;
+    document.querySelectorAll('#mode-selector .seg-btn').forEach(b => b.classList.remove('active'));
+    ev.currentTarget.classList.add('active');
+
+    const { stdMaxMan } = getDataBounds(currentMode);
+    syncScaleControls(stdMaxMan);
+    renderChart();
+  }
+
+  /* =========================================================
+     目盛り自動生成ロジック（任意の上限値に対応）
+  ========================================================= */
+  function buildTicks(maxMan) {
+    const candidates = [0.5, 1, 2, 2.5, 5, 10, 20, 25, 50];
+    let step = candidates[candidates.length - 1];
+    for (const c of candidates) {
+      if (maxMan / c <= 6) {
+        step = c;
+        break;
+      }
+    }
+
+    const ticks = [];
+    for (let v = 0; v < maxMan - 1e-6; v += step) {
+      const cleanV = Math.round(v * 10) / 10;
+      ticks.push({
+        val: cleanV * 10000,
+        label: cleanV === 0 ? '0' : `${cleanV}万`,
+        major: true
+      });
+    }
+    ticks.push({
+      val: maxMan * 10000,
+      label: `${maxMan}万`,
+      major: true,
+      isTop: true
+    });
+    return ticks;
+  }
+
+  /* =========================================================
+     パーツ生成関数
+  ========================================================= */
+  function createStationBadgeHtml(station) {
     return `
-      <div class="st-num-box ${isExp ? 'is-express' : ''}">
-        <span class="st-num-prefix">${station.prefix}</span>
-        <span class="st-num-digits">${station.num}</span>
+      <div class="st-code-badge">
+        <span class="st-code-prefix">${station.prefix}</span>
+        <span class="st-code-num">${station.num}</span>
       </div>
     `;
   }
 
-  function buildTransferSigns(station, isMobile) {
-    const transfers = transferMeta[station.name];
-    if (!transfers || transfers.length === 0) {
-      return isMobile ? '' : '<div class="transfer-column"></div>';
+  function createBreakSvgHtml(isMobile) {
+    if (isMobile) {
+      return `
+        <svg class="bar-cut-svg" viewBox="0 0 12 28" preserveAspectRatio="none">
+          <polygon points="3,0 9,0 7,28 1,28" fill="#FFFFFF" />
+          <line x1="3" y1="0" x2="1" y2="28" stroke="#181818" stroke-width="1.5" />
+          <line x1="9" y1="0" x2="7" y2="28" stroke="#181818" stroke-width="1.5" />
+        </svg>
+      `;
+    }
+    return `
+      <svg class="bar-cut-svg" viewBox="0 0 32 12" preserveAspectRatio="none">
+        <polygon points="0,4 32,1 32,7 0,10" fill="#FFFFFF" />
+        <line x1="0" y1="4" x2="32" y2="1" stroke="#181818" stroke-width="1.5" />
+        <line x1="0" y1="10" x2="32" y2="7" stroke="#181818" stroke-width="1.5" />
+      </svg>
+    `;
+  }
+
+  function createTransferHtml(station, isMobile) {
+    const list = ROUTE_CONFIG.transfers[station.code];
+    if (!list || list.length === 0) {
+      return isMobile ? '' : '<div class="transfer-cell"></div>';
     }
 
-    const maxInline = isMobile ? transfers.length : 4;
-    const visibleList = transfers.slice(0, maxInline);
-    const remainCount = transfers.length - visibleList.length;
+    const maxVisible = isMobile ? list.length : 4;
+    const shown = list.slice(0, maxVisible);
+    const hiddenCount = list.length - shown.length;
 
-    let signsHtml = visibleList.map(tr =>
-      `<span class="tr-sign" style="--tr-color: ${tr.color};" title="${tr.line}${tr.note ? '（' + tr.note + '）' : ''}">${tr.code}</span>`
+    let badges = shown.map(tr =>
+      `<span class="tr-badge" style="--tr-color: ${tr.color};" title="${tr.line}${tr.note ? '（' + tr.note + '）' : ''}">${tr.code}</span>`
     ).join('');
 
-    if (remainCount > 0) {
-      signsHtml += `<span class="tr-more-sign">+${remainCount}</span>`;
+    if (hiddenCount > 0) {
+      badges += `<span class="tr-more-badge">+${hiddenCount}</span>`;
     }
 
     if (isMobile) {
-      return `<div class="mobile-transfer-row" onclick="showTransferPopup('${station.code}')">${signsHtml}</div>`;
+      return `<div class="mobile-tr-wrap" onclick="openTransferModal('${station.code}')">${badges}</div>`;
     }
 
     return `
-      <div class="transfer-column has-transfers" onclick="showTransferPopup('${station.code}')" title="クリックで乗り換え路線一覧を表示">
-        <div class="transfer-stack">${signsHtml}</div>
+      <div class="transfer-cell clickable" onclick="openTransferModal('${station.code}')" title="クリックで乗り換え路線を表示">
+        <div class="transfer-list-col">${badges}</div>
       </div>
     `;
   }
 
-  function renderMap() {
-    const container = document.getElementById('map-container');
-    const maxP = lineData.maxPassengers;
-    const gridValues = [50000, 100000, 150000, 200000, 250000, 300000, 350000];
+  /* =========================================================
+     メイン描画処理
+  ========================================================= */
+  function renderChart() {
+    const matrix = document.getElementById('chart-matrix');
+    const maxP = scaleMaxMan * 10000;
+    const ticks = buildTicks(scaleMaxMan);
     const isMobile = window.innerWidth <= 767;
+    const now = new Date();
 
-    let stationGridHtml = '<div class="grid-bg">';
-    gridValues.forEach(val => {
-      const isMajor = val % 100000 === 0;
-      stationGridHtml += `<div class="grid-line ${isMajor ? 'major' : ''}" style="--pos: ${(val / maxP) * 100}%;"></div>`;
+    renderFooterNotes();
+
+    // 背景グリッド
+    let gridHtml = '<div class="grid-layer">';
+    ticks.forEach(t => {
+      if (t.val === 0) return;
+      gridHtml += `<div class="grid-h-line major" style="--pos: ${(t.val / maxP) * 100}%;"></div>`;
     });
-    stationGridHtml += '</div>';
+    gridHtml += '</div>';
 
-    let graphLabelsHtml = `<div class="graph-label" style="--pos: 0%;">0</div>`;
-    gridValues.forEach(val => {
-      const labelText = (val % 100000 === 0 || !isMobile) ? `${val / 10000}万` : '';
-      if (labelText) {
-        graphLabelsHtml += `<div class="graph-label" style="--pos: ${(val / maxP) * 100}%;">${labelText}</div>`;
+    // 軸目盛りラベル
+    let axisLabelsHtml = '';
+    ticks.forEach((t, i) => {
+      const isZero = t.val === 0;
+      const isTop = Boolean(t.isTop);
+      if (isMobile && ticks.length > 5 && i % 2 === 1 && !isTop) return;
+
+      const classes = ['y-tick-label'];
+      if (isZero) classes.push('is-zero');
+      if (isTop) classes.push('is-max');
+
+      let content = t.label;
+      if (isTop) {
+        content = isMobile
+          ? `${t.label}<span class="y-unit">(人)</span>`
+          : `<span class="y-unit">（人）</span>${t.label}`;
       }
+
+      axisLabelsHtml += `<div class="${classes.join(' ')}" style="--pos: ${(t.val / maxP) * 100}%;">${content}</div>`;
     });
 
-    let lineLabelsHtml = '';
-    trainTypes.forEach(type => {
-      lineLabelsHtml += `
-        <div class="line-label-row" style="--line-color: ${type.color};">
-          <div class="line-label-texts">
-            <span class="line-label-jp">${type.name}</span>
-            <span class="line-label-en">${type.en}</span>
+    // 種別凡例（左軸下部）
+    let servicesAxisHtml = '';
+    ROUTE_CONFIG.services.forEach(srv => {
+      servicesAxisHtml += `
+        <div class="service-row" style="--srv-color: ${srv.color};">
+          <div class="service-names">
+            <span class="service-jp">${srv.name}</span>
+            <span class="service-en">${srv.en}</span>
           </div>
-          <div class="line-label-sample"></div>
+          <div class="service-swatch-line"></div>
         </div>
       `;
     });
 
     let html = `
-      <div class="label-block">
-        <div class="graph-area-labels">${graphLabelsHtml}</div>
-        <div class="station-name-spacer">駅名・駅番号</div>
-        <div class="line-map-labels">${lineLabelsHtml}</div>
-        <div class="transfer-spacer">乗換路線<br>ナンバリング</div>
+      <div class="axis-column">
+        <div class="y-axis-labels">${axisLabelsHtml}</div>
+        <div class="station-axis-spacer">駅名・駅番号</div>
+        <div class="service-axis-labels">${servicesAxisHtml}</div>
+        <div class="transfer-axis-spacer">乗換路線</div>
       </div>
     `;
 
-    lineData.stations.forEach((station) => {
-      const total = station.board + station.alight;
-      const isExp = station.stops.includes("express");
+    // 各駅データ列
+    ROUTE_CONFIG.stations.forEach(st => {
+      const total = st.board + st.alight;
+      const activeVal = getStationMetric(st, currentMode);
+      const isOverflow = activeVal > maxP;
+      const isExpress = st.stops.includes("express");
+      const activeNote = getActiveStationNote(st, now);
 
-      let boardSize = (station.board / maxP) * 100;
-      let alightSize = (station.alight / maxP) * 100;
+      let boardPct = 0;
+      let alightPct = 0;
 
-      if (currentMode === 'board') alightSize = 0;
-      if (currentMode === 'alight') boardSize = 0;
+      if (isOverflow) {
+        if (currentMode === 'total') {
+          boardPct = (st.board / total) * 100;
+          alightPct = (st.alight / total) * 100;
+        } else if (currentMode === 'board') {
+          boardPct = 100;
+        } else {
+          alightPct = 100;
+        }
+      } else {
+        boardPct = (st.board / maxP) * 100;
+        alightPct = (st.alight / maxP) * 100;
+        if (currentMode === 'board') alightPct = 0;
+        if (currentMode === 'alight') boardPct = 0;
+      }
+
+      const overflowHtml = isOverflow
+        ? `${createBreakSvgHtml(isMobile)}<div class="bar-cap-label">${(activeVal / 10000).toFixed(1)}万</div>`
+        : '';
 
       let tracksHtml = '';
-      trainTypes.forEach(type => {
-        const isStop = station.stops.includes(type.id);
-        tracksHtml += `<div class="track" style="--line-color: ${type.color};"><div class="node ${isStop ? '' : 'pass'}"></div></div>`;
+      ROUTE_CONFIG.services.forEach(srv => {
+        const stopsHere = st.stops.includes(srv.id);
+        tracksHtml += `
+          <div class="service-track" style="--srv-color: ${srv.color};">
+            <div class="stop-dot ${stopsHere ? '' : 'is-pass'}"></div>
+          </div>
+        `;
       });
 
-      const numBoxHtml = createStationNumBox(station);
-      const transferHtml = buildTransferSigns(station, isMobile);
+      const badgeHtml = createStationBadgeHtml(st);
+      const trHtml = createTransferHtml(st, isMobile);
+      const subNameHtml = st.subName ? `<span class="st-sub-jp">${st.subName}</span>` : '';
+      const noteMarkHtml = activeNote ? `<span class="st-note-mark" title="※${activeNote.shortText}">※</span>` : '';
+      const noteAttr = activeNote ? `data-note="${activeNote.shortText}"` : '';
 
       if (isMobile) {
         html += `
-          <div class="station-block">
-            <div class="graph-area">
-              ${stationGridHtml}
-              <div class="bar-container" style="--board-size: ${boardSize}%; --alight-size: ${alightSize}%;">
-                <div class="bar-segment bar-board" style="background-color: var(--bar-board);"
-                     data-code="${station.code}" data-name="${station.name}" data-en="${station.en}" data-total="${total}" data-board="${station.board}" data-alight="${station.alight}"></div>
-                <div class="bar-segment bar-alight" style="background-color: var(--bar-alight);"
-                     data-code="${station.code}" data-name="${station.name}" data-en="${station.en}" data-total="${total}" data-board="${station.board}" data-alight="${station.alight}"></div>
+          <div class="station-col">
+            <div class="graph-cell">
+              ${gridHtml}
+              <div class="bar-stack" style="--board-pct: ${boardPct}%; --alight-pct: ${alightPct}%;">
+                <div class="bar-part bar-board" style="background-color: var(--cud-board);"
+                     data-code="${st.code}" data-name="${st.name}${st.subName || ''}" data-en="${st.en}"
+                     data-total="${total}" data-board="${st.board}" data-alight="${st.alight}" ${noteAttr}></div>
+                <div class="bar-part bar-alight" style="background-color: var(--cud-alight);"
+                     data-code="${st.code}" data-name="${st.name}${st.subName || ''}" data-en="${st.en}"
+                     data-total="${total}" data-board="${st.board}" data-alight="${st.alight}" ${noteAttr}></div>
+                ${overflowHtml}
               </div>
             </div>
-            <div class="station-name-container">
-              <div class="mobile-st-head">
-                ${numBoxHtml}
-                <div class="mobile-st-names">
-                  <span class="station-name-jp ${isExp ? 'is-express' : ''}">${station.name}</span>
-                  <span class="station-name-en">${station.en}</span>
+            <div class="station-meta-cell">
+              <div class="mobile-st-row">
+                ${badgeHtml}
+                <div class="mobile-st-labels">
+                  <span class="st-name-jp ${isExpress ? 'is-express' : ''}">${st.name}${subNameHtml}${noteMarkHtml}</span>
+                  <span class="st-name-en">${st.en}</span>
                 </div>
               </div>
-              ${transferHtml}
+              ${trHtml}
             </div>
-            <div class="line-map-area">
+            <div class="route-tracks-cell">
               ${tracksHtml}
             </div>
           </div>
         `;
       } else {
         html += `
-          <div class="station-block">
-            <div class="graph-area">
-              ${stationGridHtml}
-              <div class="bar-container" style="--board-size: ${boardSize}%; --alight-size: ${alightSize}%;">
-                <div class="bar-segment bar-alight" style="background-color: var(--bar-alight);"
-                     data-code="${station.code}" data-name="${station.name}" data-en="${station.en}" data-total="${total}" data-board="${station.board}" data-alight="${station.alight}"></div>
-                <div class="bar-segment bar-board" style="background-color: var(--bar-board);"
-                     data-code="${station.code}" data-name="${station.name}" data-en="${station.en}" data-total="${total}" data-board="${station.board}" data-alight="${station.alight}"></div>
+          <div class="station-col">
+            <div class="graph-cell">
+              ${gridHtml}
+              <div class="bar-stack" style="--board-pct: ${boardPct}%; --alight-pct: ${alightPct}%;">
+                <div class="bar-part bar-alight" style="background-color: var(--cud-alight);"
+                     data-code="${st.code}" data-name="${st.name}${st.subName || ''}" data-en="${st.en}"
+                     data-total="${total}" data-board="${st.board}" data-alight="${st.alight}" ${noteAttr}></div>
+                <div class="bar-part bar-board" style="background-color: var(--cud-board);"
+                     data-code="${st.code}" data-name="${st.name}${st.subName || ''}" data-en="${st.en}"
+                     data-total="${total}" data-board="${st.board}" data-alight="${st.alight}" ${noteAttr}></div>
+                ${overflowHtml}
               </div>
             </div>
-            <div class="station-name-container">
-              <div class="station-bilingual-wrap">
-                <span class="station-name-jp ${isExp ? 'is-express' : ''}">${station.name}</span>
-                <span class="station-name-en">${station.en}</span>
+            <div class="station-meta-cell">
+              <div class="bilingual-name-box">
+                <span class="st-name-jp ${isExpress ? 'is-express' : ''}">${noteMarkHtml}${subNameHtml}${st.name}</span>
+                <span class="st-name-en">${st.en}</span>
               </div>
-              ${numBoxHtml}
+              ${badgeHtml}
             </div>
-            <div class="line-map-area">
+            <div class="route-tracks-cell">
               ${tracksHtml}
             </div>
-            ${transferHtml}
+            ${trHtml}
           </div>
         `;
       }
     });
 
-    container.innerHTML = html;
-    initTooltip();
+    matrix.innerHTML = html;
+    bindTooltipEvents();
   }
 
-  function switchMode(ev, modeStr) {
-    currentMode = modeStr;
-    const btns = document.getElementById('mode-toggles').querySelectorAll('.mode-btn');
-    btns.forEach(b => b.classList.remove('active'));
-    ev.currentTarget.classList.add('active');
-    renderMap();
-  }
-
-  function initTooltip() {
+  /* =========================================================
+     ツールチップ＆乗換モーダル
+  ========================================================= */
+  function bindTooltipEvents() {
     const tooltip = document.getElementById('tooltip');
-    document.querySelectorAll('.bar-segment').forEach(seg => {
-      const showTip = (e) => {
-        const code = seg.getAttribute('data-code');
-        const name = seg.getAttribute('data-name');
-        const en = seg.getAttribute('data-en');
-        const total = parseInt(seg.getAttribute('data-total')).toLocaleString();
-        const board = parseInt(seg.getAttribute('data-board')).toLocaleString();
-        const alight = parseInt(seg.getAttribute('data-alight')).toLocaleString();
+    document.querySelectorAll('.bar-part').forEach(el => {
+      const show = (e) => {
+        const code = el.getAttribute('data-code');
+        const name = el.getAttribute('data-name');
+        const en = el.getAttribute('data-en');
+        const note = el.getAttribute('data-note');
+        const total = parseInt(el.getAttribute('data-total'), 10).toLocaleString();
+        const board = parseInt(el.getAttribute('data-board'), 10).toLocaleString();
+        const alight = parseInt(el.getAttribute('data-alight'), 10).toLocaleString();
 
-        let html = `<span class="tt-num">${code}</span> <strong>${name}</strong> <span style="color:#BBBBBB; font-size:11px;">(${en})</span><br>`;
+        let text = `<span class="tt-code">${code}</span> <strong>${name}</strong> <span style="color:#BBBBBB; font-size:11px;">(${en})</span><br>`;
         if (currentMode === 'total' || currentMode === 'alight') {
-          html += `<span style="color:#88CE78;">■</span> 降車人員：${alight}人<br>`;
+          text += `<span style="color:var(--cud-alight);">■</span> 降車人員：${alight}人<br>`;
         }
         if (currentMode === 'total' || currentMode === 'board') {
-          html += `<span style="color:#6CBB5A;">■</span> 乗車人員：${board}人<br>`;
+          text += `<span style="color:#58B2DC;">■</span> 乗車人員：${board}人<br>`;
         }
         if (currentMode === 'total') {
-          html += `<strong>乗降合計：${total}人</strong>`;
+          text += `<strong>乗降合計：${total}人</strong>`;
         }
-        tooltip.innerHTML = html;
+        if (note) {
+          text += `<br><span class="tt-note">※ ${note}</span>`;
+        }
+        tooltip.innerHTML = text;
         tooltip.style.opacity = 1;
-        moveTip(e);
+        move(e);
       };
 
-      const moveTip = (e) => {
-        const pageX = e.pageX || (e.touches && e.touches[0].pageX) || 0;
-        const pageY = e.pageY || (e.touches && e.touches[0].pageY) || 0;
-        let x = pageX + 14;
-        let y = pageY + 14;
+      const move = (e) => {
+        const px = e.pageX || (e.touches && e.touches[0].pageX) || 0;
+        const py = e.pageY || (e.touches && e.touches[0].pageY) || 0;
+        let x = px + 14;
+        let y = py + 14;
         if (x + tooltip.offsetWidth > window.innerWidth - 10) {
-          x = Math.max(10, pageX - tooltip.offsetWidth - 14);
+          x = Math.max(10, px - tooltip.offsetWidth - 14);
         }
         tooltip.style.left = x + 'px';
         tooltip.style.top = y + 'px';
       };
 
-      seg.addEventListener('mouseover', showTip);
-      seg.addEventListener('mousemove', moveTip);
-      seg.addEventListener('mouseout', () => {
-        tooltip.style.opacity = 0;
-      });
-      seg.addEventListener('click', showTip);
+      el.addEventListener('mouseover', show);
+      el.addEventListener('mousemove', move);
+      el.addEventListener('mouseout', () => { tooltip.style.opacity = 0; });
+      el.addEventListener('click', show);
     });
   }
 
-  function showTransferPopup(stationCode) {
-    const station = lineData.stations.find(s => s.code === stationCode);
-    if (!station) return;
-    const transfers = transferMeta[station.name];
-    if (!transfers) return;
+  function openTransferModal(stCode) {
+    const st = ROUTE_CONFIG.stations.find(s => s.code === stCode);
+    const list = ROUTE_CONFIG.transfers[stCode];
+    if (!st || !list) return;
 
-    document.getElementById('modal-station-code-wrap').innerHTML = createStationNumBox(station);
-    document.getElementById('modal-station-name').textContent = station.name + '駅 乗り換え路線';
-    document.getElementById('modal-station-en').textContent = station.en + ' Station Transfers';
+    document.getElementById('modal-code-slot').innerHTML = createStationBadgeHtml(st);
+    document.getElementById('modal-st-jp').textContent = `${st.name}駅 乗り換え路線`;
+    document.getElementById('modal-st-en').textContent = `${st.en} Station Transfers`;
 
-    const ul = document.getElementById('modal-transfer-list');
-    ul.innerHTML = transfers.map(tr => `
-      <li class="modal-transfer-item">
-        <div class="modal-line-left">
-          <span class="modal-tr-code" style="--tr-color: ${tr.color};">${tr.code}</span>
+    document.getElementById('modal-tr-list').innerHTML = list.map(tr => `
+      <li class="modal-item">
+        <div class="modal-item-left">
+          <span class="modal-code-pill" style="--tr-color: ${tr.color};">${tr.code}</span>
           <span>${tr.line}</span>
         </div>
-        ${tr.note ? `<span class="modal-note">${tr.note}</span>` : ''}
+        ${tr.note ? `<span class="modal-note-tag">${tr.note}</span>` : ''}
       </li>
     `).join('');
 
-    const modal = document.getElementById('transfer-modal');
-    modal.style.display = 'flex';
-    setTimeout(() => modal.classList.add('show'), 10);
+    const overlay = document.getElementById('transfer-modal');
+    overlay.style.display = 'flex';
+    setTimeout(() => overlay.classList.add('show'), 10);
   }
 
   function closePopup() {
-    const modal = document.getElementById('transfer-modal');
-    modal.classList.remove('show');
-    setTimeout(() => modal.style.display = 'none', 150);
+    const overlay = document.getElementById('transfer-modal');
+    overlay.classList.remove('show');
+    setTimeout(() => { overlay.style.display = 'none'; }, 150);
   }
 
-  let lastIsMobile = window.innerWidth <= 767;
+  /* =========================================================
+     初期化処理
+  ========================================================= */
+  function initApp() {
+    document.documentElement.style.setProperty('--line-theme', ROUTE_CONFIG.themeColor);
+    document.getElementById('route-symbol').textContent = ROUTE_CONFIG.symbol;
+    document.getElementById('route-title-jp').textContent = ROUTE_CONFIG.titleJp;
+    document.getElementById('route-title-en').textContent = ROUTE_CONFIG.titleEn;
+    document.getElementById('route-period').textContent = ROUTE_CONFIG.period;
+
+    const { stdMaxMan } = getDataBounds(currentMode);
+    syncScaleControls(stdMaxMan);
+    renderChart();
+  }
+
+  let prevIsMobile = window.innerWidth <= 767;
   window.addEventListener('resize', () => {
     const nowIsMobile = window.innerWidth <= 767;
-    if (nowIsMobile !== lastIsMobile) {
-      lastIsMobile = nowIsMobile;
-      renderMap();
+    if (nowIsMobile !== prevIsMobile) {
+      prevIsMobile = nowIsMobile;
+      renderChart();
     }
   });
 
-  renderMap();
+  initApp();
 </script>
 
 </body>
